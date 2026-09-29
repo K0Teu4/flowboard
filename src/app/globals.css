@@ -17,18 +17,20 @@
 
 * { box-sizing: border-box; }
 html { min-height: 100%; background: var(--bg); }
-body { margin: 0; min-height: 100%; background: radial-gradient(circle at 85% -10%, rgba(45,212,191,.15), transparent 34%), var(--bg); color: var(--text); font-family: Arial, Helvetica, sans-serif; }
+body { margin: 0; min-height: 100%; color: var(--text); font-family: Arial, Helvetica, sans-serif; background: var(--bg); position: relative; overflow-x: hidden; }
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -2; background: radial-gradient(circle at 15% 8%, rgba(53,214,196,.11), transparent 26rem), radial-gradient(circle at 88% 2%, rgba(93,122,255,.10), transparent 30rem), radial-gradient(circle at 50% 55%, rgba(255,255,255,.025), transparent 34rem), linear-gradient(180deg, #0a0f10 0%, #0a0f10 42%, #080c0e 100%); }
+body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1; opacity: .42; background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size: 48px 48px; mask-image: linear-gradient(to bottom, rgba(0,0,0,.85), transparent 78%); }
 button, input { font: inherit; }
 button { cursor: pointer; }
 ::selection { background: rgba(45,212,191,.28); }
 
-.shell { background: linear-gradient(180deg, rgba(255,255,255,.02), transparent 120px), var(--bg); }
+.shell { background: linear-gradient(180deg, rgba(255,255,255,.025), transparent 160px), transparent; }
 .glass { background: rgba(16,23,24,.76); border: 1px solid var(--border); backdrop-filter: blur(18px); }
 .card { background: var(--panel-2); border: 1px solid var(--border); }
 .card:hover { border-color: rgba(45,212,191,.34); transform: translateY(-1px); }
 .transition-soft { transition: 180ms ease; }
 .gradient-text { background: linear-gradient(120deg, #fff 15%, #b7fff5 64%, #2dd4bf 95%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.grid-fade { background-image: linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px); background-size: 40px 40px; mask-image: linear-gradient(to bottom, rgba(0,0,0,.85), transparent 90%); }
+.grid-fade { background-image: linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px); background-size: 40px 40px; mask-image: linear-gradient(to bottom, rgba(0,0,0,.85), transparent 90%); opacity: .5; }
 .scrollbar-thin::-webkit-scrollbar { height: 7px; width: 7px; }
 .scrollbar-thin::-webkit-scrollbar-thumb { background: #2a3535; border-radius: 999px; }
 .focus-ring:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -40,3 +42,7 @@ html { color-scheme: dark; }
 input::placeholder, textarea::placeholder { color: var(--muted); }
 select option { background: #111819; color: var(--text); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+
+.card, .glass, [class*="rounded-3xl"] { will-change: auto; }
+.content-auto { content-visibility: auto; contain-intrinsic-size: 300px; }
+@media (max-width: 767px) { body::after { background-size: 36px 36px; opacity: .28; } }
