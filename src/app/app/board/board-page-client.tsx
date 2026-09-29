@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarClock, CheckSquare2, Edit3, Filter, MoreHorizontal, Plus, Search, ShieldAlert, Trash2, X } from "lucide-react";
+import { CalendarClock, CheckSquare2, Edit3, Filter, Plus, Search, ShieldAlert, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
@@ -175,7 +175,6 @@ export default function BoardPage() {
 
         {deleteColumnId && <MiniConfirm title={language === "ru" ? "Удалить колонку?" : "Delete list?"} description={language === "ru" ? "Все карточки в этой колонке будут удалены." : "All cards in this list will be removed."} confirm={language === "ru" ? "Удалить" : "Delete"} onClose={() => setDeleteColumnId(null)} onConfirm={deleteColumnConfirmed} />}
 
-        {deleteBoardOpen && <MiniConfirm title={language === "ru" ? "Удалить доску?" : "Delete board?"} description={language === "ru" ? "Доску и её карточки нельзя будет восстановить." : "The board and its cards cannot be restored."} confirm={language === "ru" ? "Удалить" : "Delete"} onClose={() => setDeleteBoardOpen(false)} onConfirm={() => { setDeleteBoardOpen(false); routerReplaceBoards(); }} />}
         {activeTask && <TaskModal board={currentBoard} task={activeTask.task} language={language} onClose={() => setActiveTask(null)} onSave={patch => { updateTask(currentBoard.id, activeTask.task.id, patch); setActiveTask({ ...activeTask, task: { ...activeTask.task, ...patch } }); }} onDelete={() => { deleteTask(currentBoard.id, activeTask.task.id); setActiveTask(null); }} />}
         {toast && <div className="fixed bottom-5 left-1/2 z-[120] -translate-x-1/2 rounded-xl border border-white/10 bg-[var(--modal)] px-4 py-3 text-xs shadow-2xl">{toast}</div>}
       </div>
