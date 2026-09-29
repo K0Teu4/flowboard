@@ -19,7 +19,9 @@ export function BoardPreview({ externalQuery = "", addSignal = 0, filterMode = "
   const [openTask, setOpenTask] = useState<Task | null>(null);
   const [openColumn, setOpenColumn] = useState<string | null>(null);
   const [lastAddSignal, setLastAddSignal] = useState(addSignal);
-  const [renameColumn, setRenameColumn] = useState<{id:string;title:string}|null>(null);\n  const [renameValue, setRenameValue] = useState("");\n  const [clearColumn, setClearColumn] = useState<string|null>(null);
+  const [renameColumn, setRenameColumn] = useState<{id:string;title:string}|null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [clearColumn, setClearColumn] = useState<string|null>(null);
   const columnTitles = language === "ru" ? { backlog: "Бэклог", progress: "В работе", review: "Проверка", done: "Готово" } : { backlog: "Backlog", progress: "In Progress", review: "Review", done: "Done" };
   const priorityTitles = language === "ru" ? { Low: "Низкий", Medium: "Средний", High: "Высокий" } : { Low: "Low", Medium: "Medium", High: "High" };
 
