@@ -10,6 +10,8 @@ export type Board = {
   description: string;
   columns: BoardColumn[];
   createdAt: string;
+  favorite?: boolean;
+  background?: string;
 };
 
 type Activity = { id: string; text: string; at: string };
@@ -36,6 +38,8 @@ const starterBoard: Board = {
     tasks: index === 0 ? [{ id: "starter-1", title: "Создай первую задачу", priority: "Medium", labels: ["Старт"], description: "Открой карточку и добавь описание, срок и чек-лист." }] : [],
   })),
   createdAt: new Date().toISOString(),
+  background: "mint",
+  favorite: false,
 };
 
 function cloneSampleBoard(): Board {
@@ -45,6 +49,8 @@ function cloneSampleBoard(): Board {
     description: "Публичная демонстрация возможностей Flowboard.",
     columns: structuredClone(boardColumns),
     createdAt: new Date().toISOString(),
+    background: "mint",
+    favorite: false,
   };
 }
 
@@ -61,6 +67,9 @@ const WorkspaceContext = createContext<null | {
   state: WorkspaceState;
   createBoard: (title: string, description?: string) => Board;
   renameBoard: (boardId: string, title: string) => void;
+  duplicateBoard: (boardId: string) => Board | null;
+  toggleFavorite: (boardId: string) => void;
+  setBackground: (boardId: string, background: string) => void;
   deleteBoard: (boardId: string) => void;
   addColumn: (boardId: string, title: string) => void;
   renameColumn: (boardId: string, columnId: string, title: string) => void;
@@ -70,6 +79,9 @@ const WorkspaceContext = createContext<null | {
   deleteTask: (boardId: string, taskId: string) => void;
   moveTask: (boardId: string, taskId: string, fromColumnId: string, toColumnId: string) => void;
   addComment: (boardId: string, taskId: string, body: string) => void;
+  addChecklistItem: (boardId: string, taskId: string, text: string) => void;
+  toggleChecklistItem: (boardId: string, taskId: string, itemId: string) => void;
+  deleteChecklistItem: (boardId: string, taskId: string, itemId: string) => void;
   resetWorkspace: () => void;
   seedStarterBoard: () => Board;
 }>(null);
@@ -91,12 +103,38 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const api = useMemo(() => ({
     state,
     createBoard(title: string, description = "") {
-      const board: Board = { id: crypto.randomUUID(), title, description, columns: ["Бэклог", "В работе", "Проверка", "Готово"].map((t, i) => ({ id: `${crypto.randomUUID()}-${i}`, title: t, tasks: [] })), createdAt: now() };
+      const board: Board = { id: crypto.randomUUID(), title, description, columns: ["Бэклог", "В работе", "Проверка", "Готово"].map((t, i) => ({ id: `${crypto.randomUUID()}-${i}`, title: t, tasks: [] })), createdAt: now(), background: "mint", favorite: false };
       setState(prev => withActivity({ ...prev, boards: [...prev.boards, board] }, `Создана доска «${title}»`));
       return board;
     },
     renameBoard(boardId: string, title: string) {
-      setState(prev => withActivity({ ...prev, boards: prev.boards.map(b => b.id === boardId ? { ...b, title } : b) }, `Переименована доска в «${title}»`));
+      const clean = title.trim();
+      if (!clean) return;
+      setState(prev => withActivity({ ...prev, boards: prev.boards.map(b => b.id === boardId ? { ...b, title: clean } : b) }, `Переименована доска в «${clean}»`));
+    },
+    duplicateBoard(boardId: string) {
+      let created: Board | null = null;
+      setState(prev => {
+        const original = prev.boards.find(b => b.id === boardId);
+        if (!original) return prev;
+        const clone: Board = {
+          ...structuredClone(original),
+          id: crypto.randomUUID(),
+          title: `${original.title} — копия`,
+          createdAt: now(),
+          favorite: false,
+          columns: original.columns.map(column => ({ ...column, id: crypto.randomUUID(), tasks: column.tasks.map(task => ({ ...task, id: crypto.randomUUID() })) })),
+        };
+        created = clone;
+        return withActivity({ ...prev, boards: [...prev.boards, clone] }, `Создана копия доски «${clone.title}»`);
+      });
+      return created;
+    },
+    toggleFavorite(boardId: string) {
+      setState(prev => ({ ...prev, boards: prev.boards.map(b => b.id === boardId ? { ...b, favorite: !b.favorite } : b) }));
+    },
+    setBackground(boardId: string, background: string) {
+      setState(prev => withActivity({ ...prev, boards: prev.boards.map(b => b.id === boardId ? { ...b, background } : b) }, "Изменён фон доски"));
     },
     deleteBoard(boardId: string) {
       setState(prev => withActivity({ ...prev, boards: prev.boards.filter(b => b.id !== boardId) }, "Доска удалена"));
@@ -112,7 +150,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setState(prev => withActivity({ ...prev, boards: prev.boards.map(b => b.id === boardId ? { ...b, columns: b.columns.filter(c => c.id !== columnId) } : b) }, "Колонка удалена"));
     },
     addTask(boardId: string, columnId: string, task: Partial<Task> = {}) {
-      const nextTask: Task = { id: crypto.randomUUID(), title: task.title?.trim() || "Новая задача", priority: task.priority || "Medium", labels: task.labels || [], ...task } as Task;
+      const nextTask: Task = { id: crypto.randomUUID(), title: task.title?.trim() || "Новая задача", priority: task.priority || "Medium", labels: task.labels || [], commentItems: [], checklistItems: [], comments: 0, ...task } as Task;
       setState(prev => withActivity({ ...prev, boards: prev.boards.map(b => b.id === boardId ? { ...b, columns: b.columns.map(c => c.id === columnId ? { ...c, tasks: [...c.tasks, nextTask] } : c) } : b) }, `Добавлена задача «${nextTask.title}»`));
     },
     updateTask(boardId: string, taskId: string, patch: Partial<Task>) {
@@ -142,7 +180,44 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     addComment(boardId: string, taskId: string, body: string) {
       const comment = body.trim();
       if (!comment) return;
-      setState(prev => withActivity(prev, "Добавлен комментарий к задаче"));
+      const author = getCurrentUser()?.name || "Dmitry";
+      const item = { id: crypto.randomUUID(), author, body: comment, createdAt: now() };
+      setState(prev => withActivity({
+        ...prev,
+        boards: prev.boards.map(b => b.id === boardId ? {
+          ...b,
+          columns: b.columns.map(c => ({ ...c, tasks: c.tasks.map(t => t.id === taskId ? { ...t, commentItems: [...(t.commentItems || []), item], comments: (t.comments || 0) + 1 } : t) })),
+        } : b),
+      }, "Добавлен комментарий к задаче"));
+    },
+    addChecklistItem(boardId: string, taskId: string, text: string) {
+      const clean = text.trim();
+      if (!clean) return;
+      const item = { id: crypto.randomUUID(), text: clean, done: false };
+      setState(prev => withActivity({
+        ...prev,
+        boards: prev.boards.map(b => b.id === boardId ? { ...b, columns: b.columns.map(c => ({ ...c, tasks: c.tasks.map(t => t.id === taskId ? { ...t, checklistItems: [...(t.checklistItems || []), item], checklist: `${(t.checklistItems || []).filter(i => i.done).length}/${(t.checklistItems || []).length + 1}` } : t) })) } : b),
+      }, `Добавлен пункт «${clean}»`));
+    },
+    toggleChecklistItem(boardId: string, taskId: string, itemId: string) {
+      setState(prev => withActivity({
+        ...prev,
+        boards: prev.boards.map(b => b.id === boardId ? { ...b, columns: b.columns.map(c => ({ ...c, tasks: c.tasks.map(t => {
+          if (t.id !== taskId) return t;
+          const items = (t.checklistItems || []).map(item => item.id === itemId ? { ...item, done: !item.done } : item);
+          return { ...t, checklistItems: items, checklist: items.length ? `${items.filter(i => i.done).length}/${items.length}` : undefined };
+        }) })) } : b),
+      }, "Обновлён чек-лист"));
+    },
+    deleteChecklistItem(boardId: string, taskId: string, itemId: string) {
+      setState(prev => withActivity({
+        ...prev,
+        boards: prev.boards.map(b => b.id === boardId ? { ...b, columns: b.columns.map(c => ({ ...c, tasks: c.tasks.map(t => {
+          if (t.id !== taskId) return t;
+          const items = (t.checklistItems || []).filter(item => item.id !== itemId);
+          return { ...t, checklistItems: items, checklist: items.length ? `${items.filter(i => i.done).length}/${items.length}` : undefined };
+        }) })) } : b),
+      }, "Удалён пункт чек-листа"));
     },
     resetWorkspace() {
       window.localStorage.removeItem(workspaceKey());
