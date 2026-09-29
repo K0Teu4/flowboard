@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CalendarClock, CheckSquare2, MessageCircle, MoreHorizontal, Paperclip, Plus, ShieldAlert } from "lucide-react";
 import { boardColumns, type Task } from "@/lib/mock-data";
+import { useLanguage } from "@/components/language-provider";
 
 const priorityClass: Record<Task["priority"], string> = {
   Low: "bg-white/6 text-[var(--muted)]",
@@ -11,8 +12,11 @@ const priorityClass: Record<Task["priority"], string> = {
 };
 
 export function BoardPreview() {
+  const { language } = useLanguage();
   const [columns, setColumns] = useState(boardColumns);
   const [dragged, setDragged] = useState<{ taskId: string; from: string } | null>(null);
+  const columnTitles = language === "ru" ? { backlog: "Бэклог", progress: "В работе", review: "Проверка", done: "Готово" } : { backlog: "Backlog", progress: "In Progress", review: "Review", done: "Done" };
+  const priorityTitles = language === "ru" ? { Low: "Низкий", Medium: "Средний", High: "Высокий" } : { Low: "Low", Medium: "Medium", High: "High" };
 
   function move(toColumn: string) {
     if (!dragged || dragged.from === toColumn) return;
@@ -47,10 +51,10 @@ export function BoardPreview() {
           >
             <div className="flex items-center justify-between px-1 pb-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium">{column.title}</span>
+                <span className="text-xs font-medium">{columnTitles[column.id as keyof typeof columnTitles]}</span>
                 <span className="grid h-5 min-w-5 place-items-center rounded-md bg-white/5 px-1 text-[10px] text-[var(--muted)]">{column.tasks.length}</span>
               </div>
-              <button aria-label={`More actions for ${column.title}`} className="grid h-7 w-7 place-items-center rounded-lg text-[var(--muted)] hover:bg-white/5">
+              <button aria-label={`More actions for ${columnTitles[column.id as keyof typeof columnTitles]}`} className="grid h-7 w-7 place-items-center rounded-lg text-[var(--muted)] hover:bg-white/5">
                 <MoreHorizontal size={15} />
               </button>
             </div>
@@ -63,7 +67,7 @@ export function BoardPreview() {
                   className="card transition-soft cursor-grab rounded-xl p-3 active:cursor-grabbing"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <span className={`rounded-md px-1.5 py-1 text-[9px] font-medium ${priorityClass[task.priority]}`}>{task.priority}</span>
+                    <span className={`rounded-md px-1.5 py-1 text-[9px] font-medium ${priorityClass[task.priority]}`}>{priorityTitles[task.priority]}</span>
                     {task.blocked && <ShieldAlert size={14} className="text-[var(--danger)]" />}
                   </div>
                   <div className="mt-2 text-sm font-medium leading-5">{task.title}</div>
@@ -80,7 +84,7 @@ export function BoardPreview() {
                   </div>
                 </article>
               ))}
-              <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/8 py-2.5 text-xs text-[var(--muted)] hover:bg-white/[.025] hover:text-white"><Plus size={14} /> Add card</button>
+              <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/8 py-2.5 text-xs text-[var(--muted)] hover:bg-white/[.025] hover:text-white"><Plus size={14} /> {language === "ru" ? "Добавить карточку" : "Add card"}</button>
             </div>
           </section>
         ))}

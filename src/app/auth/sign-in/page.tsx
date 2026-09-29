@@ -1,7 +1,43 @@
+"use client";
+
+import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Brand } from "@/components/brand";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useLanguage } from "@/components/language-provider";
 
 export default function SignInPage() {
-  return <main className="grid min-h-screen place-items-center px-5 py-12"><div className="w-full max-w-md"><div className="mb-10 flex justify-center"><Brand /></div><div className="rounded-[28px] border border-white/8 bg-white/[.025] p-7 sm:p-8"><h1 className="text-2xl font-semibold">Welcome back</h1><p className="mt-2 text-sm text-[var(--muted)]">Sign in to continue to your workspace.</p><form className="mt-7 grid gap-4"><label className="grid gap-2 text-sm"><span>Email</span><input className="h-11 rounded-xl border border-white/9 bg-white/[.025] px-3 outline-none placeholder:text-white/25 focus:border-[var(--accent)]" type="email" placeholder="you@example.com" /></label><label className="grid gap-2 text-sm"><span>Password</span><input className="h-11 rounded-xl border border-white/9 bg-white/[.025] px-3 outline-none placeholder:text-white/25 focus:border-[var(--accent)]" type="password" placeholder="••••••••" /></label><Link href="/app/overview" className="mt-2 flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--accent)] text-sm font-semibold text-white transition-soft hover:bg-[var(--accent-2)]">Sign in <ArrowRight size={15}/></Link></form><div className="mt-6 flex items-center gap-2 text-xs text-[var(--muted)]"><ShieldCheck size={14}/> Demo auth is UI-only in v0.1</div><div className="mt-6 text-center text-sm text-[var(--muted)]">No account? <Link href="/auth/sign-up" className="text-white hover:underline">Create one</Link></div></div></div></main>;
+  const router = useRouter();
+  const { copy } = useLanguage();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!email.trim() || !password.trim()) return;
+    window.localStorage.setItem("flowboard-account", "created");
+    window.localStorage.setItem("flowboard-user-email", email.trim());
+    router.push("/app/overview");
+  }
+
+  return (
+    <main className="grid min-h-screen place-items-center px-5 py-10 sm:py-12">
+      <div className="w-full max-w-md">
+        <div className="mb-7 flex items-center justify-between"><Brand /><LanguageSwitcher compact /></div>
+        <div className="rounded-[30px] border border-white/8 bg-white/[.025] p-7 shadow-[0_30px_90px_rgba(0,0,0,.24)] sm:p-8">
+          <h1 className="text-2xl font-semibold tracking-[-.03em]">{copy.welcomeBack}</h1>
+          <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{copy.signInCopy}</p>
+          <form className="mt-7 grid gap-4" onSubmit={submit}>
+            <label className="grid gap-2 text-sm"><span>{copy.email}</span><input required value={email} onChange={(event) => setEmail(event.target.value)} className="focus-ring h-11 rounded-xl border border-white/9 bg-white/[.025] px-3 outline-none placeholder:text-white/25 focus:border-[var(--accent)]" type="email" placeholder="you@example.com" /></label>
+            <label className="grid gap-2 text-sm"><span>{copy.password}</span><input required value={password} onChange={(event) => setPassword(event.target.value)} className="focus-ring h-11 rounded-xl border border-white/9 bg-white/[.025] px-3 outline-none placeholder:text-white/25 focus:border-[var(--accent)]" type="password" placeholder="••••••••" /></label>
+            <button type="submit" className="mt-2 flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--accent)] text-sm font-semibold text-[#06211c] transition-soft hover:bg-[var(--accent-2)]">{copy.signInButton} <ArrowRight size={15} /></button>
+          </form>
+          <div className="mt-6 flex items-center gap-2 rounded-xl border border-white/8 bg-white/[.02] p-3 text-xs text-[var(--muted)]"><ShieldCheck size={14} className="text-[var(--accent)]" /> {copy.demoAuthNote}</div>
+          <div className="mt-6 text-center text-sm text-[var(--muted)]">{copy.noAccount} <Link href="/auth/sign-up" className="text-white hover:underline">{copy.createWorkspaceButton}</Link></div>
+        </div>
+      </div>
+    </main>
+  );
 }
