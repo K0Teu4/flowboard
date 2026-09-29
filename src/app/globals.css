@@ -35,3 +35,8 @@ button { cursor: pointer; }
 
 @keyframes float-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .animate-float-in { animation: float-in .45s ease both; }
+
+html { color-scheme: dark; }
+input::placeholder, textarea::placeholder { color: var(--muted); }
+select option { background: #111819; color: var(--text); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }

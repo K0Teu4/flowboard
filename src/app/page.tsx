@@ -28,7 +28,7 @@ export default function Home() {
           <a href="#features" className="hover:text-[var(--text)]">{copy.navFeatures}</a>
           <a href="#pulse" className="hover:text-[var(--text)]">{copy.navPulse}</a>
           <Link href="/demo" className="hover:text-[var(--text)]">{copy.navDemo}</Link>
-          <a href="#footer" className="hover:text-[var(--text)]">{copy.navPricing}</a>
+          <a href="/pricing" className="hover:text-[var(--text)]">{copy.navPricing}</a>
         </nav>
         <div className="ml-auto flex items-center gap-2">
           <LanguageSwitcher compact />

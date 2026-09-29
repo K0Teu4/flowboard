@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CalendarClock, CheckSquare2, MessageCircle, MoreHorizontal, Paperclip, Plus, ShieldAlert } from "lucide-react";
 import { boardColumns, type Task } from "@/lib/mock-data";
 import { useLanguage } from "@/components/language-provider";
@@ -11,84 +11,52 @@ const priorityClass: Record<Task["priority"], string> = {
   High: "bg-[rgba(255,113,113,.11)] text-[var(--danger)]",
 };
 
-export function BoardPreview() {
+export function BoardPreview({ externalQuery = "", addSignal = 0, filterMode = "all" }: { externalQuery?: string; addSignal?: number; filterMode?: "all" | "high" | "due" | "blocked" }) {
   const { language } = useLanguage();
   const [columns, setColumns] = useState(boardColumns);
   const [dragged, setDragged] = useState<{ taskId: string; from: string } | null>(null);
+  const [query, setQuery] = useState(externalQuery);
+  const [openTask, setOpenTask] = useState<Task | null>(null);
+  const [openColumn, setOpenColumn] = useState<string | null>(null);
+  const [lastAddSignal, setLastAddSignal] = useState(addSignal);
   const columnTitles = language === "ru" ? { backlog: "Бэклог", progress: "В работе", review: "Проверка", done: "Готово" } : { backlog: "Backlog", progress: "In Progress", review: "Review", done: "Done" };
   const priorityTitles = language === "ru" ? { Low: "Низкий", Medium: "Средний", High: "Высокий" } : { Low: "Low", Medium: "Medium", High: "High" };
+
+  useEffect(() => setQuery(externalQuery), [externalQuery]);
+  useEffect(() => {
+    if (addSignal === lastAddSignal) return;
+    setLastAddSignal(addSignal);
+    setColumns(cols => cols.map((column, index) => index === 0 ? { ...column, tasks: [...column.tasks, { id: `demo-${Date.now()}`, title: language === "ru" ? "Новая карточка" : "New card", priority: "Medium", labels: [language === "ru" ? "Работа" : "Work"] }] } : column));
+  }, [addSignal, lastAddSignal, language]);
 
   function move(toColumn: string) {
     if (!dragged || dragged.from === toColumn) return;
     let moving: Task | undefined;
-    const next = columns.map((column) => ({
-      ...column,
-      tasks: column.tasks.filter((task) => {
-        if (column.id === dragged.from && task.id === dragged.taskId) {
-          moving = task;
-          return false;
-        }
-        return true;
-      }),
-    }));
+    const next = columns.map((column) => ({ ...column, tasks: column.tasks.filter((task) => { if (column.id === dragged.from && task.id === dragged.taskId) { moving = task; return false; } return true; }) }));
     if (!moving) return;
-    const result = next.map((column) =>
-      column.id === toColumn ? { ...column, tasks: [...column.tasks, moving!] } : column,
-    );
-    setColumns(result);
+    setColumns(next.map((column) => column.id === toColumn ? { ...column, tasks: [...column.tasks, moving!] } : column));
     setDragged(null);
   }
 
-  return (
-    <div className="mt-5 overflow-x-auto pb-1 scrollbar-thin">
-      <div className="grid min-w-[980px] grid-cols-4 gap-3">
-        {columns.map((column) => (
-          <section
-            key={column.id}
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={() => move(column.id)}
-            className="min-h-[420px] rounded-2xl bg-white/[.025] p-2.5"
-          >
-            <div className="flex items-center justify-between px-1 pb-2">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium">{columnTitles[column.id as keyof typeof columnTitles]}</span>
-                <span className="grid h-5 min-w-5 place-items-center rounded-md bg-white/5 px-1 text-[10px] text-[var(--muted)]">{column.tasks.length}</span>
-              </div>
-              <button aria-label={`More actions for ${columnTitles[column.id as keyof typeof columnTitles]}`} className="grid h-7 w-7 place-items-center rounded-lg text-[var(--muted)] hover:bg-white/5">
-                <MoreHorizontal size={15} />
-              </button>
-            </div>
-            <div className="space-y-2">
-              {column.tasks.map((task) => (
-                <article
-                  key={task.id}
-                  draggable
-                  onDragStart={() => setDragged({ taskId: task.id, from: column.id })}
-                  className="card transition-soft cursor-grab rounded-xl p-3 active:cursor-grabbing"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <span className={`rounded-md px-1.5 py-1 text-[9px] font-medium ${priorityClass[task.priority]}`}>{priorityTitles[task.priority]}</span>
-                    {task.blocked && <ShieldAlert size={14} className="text-[var(--danger)]" />}
-                  </div>
-                  <div className="mt-2 text-sm font-medium leading-5">{task.title}</div>
-                  <div className="mt-2.5 flex flex-wrap gap-1.5">
-                    {task.labels.map((label) => <span key={label} className="rounded-md border border-white/8 bg-white/[.025] px-1.5 py-1 text-[9px] text-[var(--muted)]">{label}</span>)}
-                  </div>
-                  <div className="mt-3 flex items-center justify-between gap-2 text-[10px] text-[var(--muted)]">
-                    <div className="flex items-center gap-2.5">
-                      {task.checklist && <span className="flex items-center gap-1"><CheckSquare2 size={12} />{task.checklist}</span>}
-                      {task.comments ? <span className="flex items-center gap-1"><MessageCircle size={12} />{task.comments}</span> : null}
-                      {task.attachments ? <span className="flex items-center gap-1"><Paperclip size={12} />{task.attachments}</span> : null}
-                    </div>
-                    {task.due && <span className="flex items-center gap-1"><CalendarClock size={12} />{task.due}</span>}
-                  </div>
-                </article>
-              ))}
-              <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/8 py-2.5 text-xs text-[var(--muted)] hover:bg-white/[.025] hover:text-white"><Plus size={14} /> {language === "ru" ? "Добавить карточку" : "Add card"}</button>
-            </div>
-          </section>
-        ))}
-      </div>
+  function addToColumn(columnId: string) {
+    const title = language === "ru" ? "Новая карточка" : "New card";
+    setColumns(cols => cols.map(column => column.id === columnId ? { ...column, tasks: [...column.tasks, { id: `demo-${Date.now()}-${columnId}`, title, priority: "Medium", labels: [language === "ru" ? "Работа" : "Work"] }] } : column));
+  }
+
+  return <div className="mt-5 overflow-x-auto pb-1 scrollbar-thin">
+    <div className="grid min-w-[980px] grid-cols-4 gap-3">
+      {columns.map(column => <section key={column.id} onDragOver={event => event.preventDefault()} onDrop={() => move(column.id)} className="min-h-[420px] rounded-2xl bg-white/[.025] p-2.5">
+        <div className="relative flex items-center justify-between px-1 pb-2">
+          <div className="flex items-center gap-2"><span className="text-xs font-medium">{columnTitles[column.id as keyof typeof columnTitles]}</span><span className="grid h-5 min-w-5 place-items-center rounded-md bg-white/5 px-1 text-[10px] text-[var(--muted)]">{column.tasks.length}</span></div>
+          <button onClick={() => setOpenColumn(openColumn === column.id ? null : column.id)} aria-label={`Меню ${column.title}`} className="grid h-7 w-7 place-items-center rounded-lg text-[var(--muted)] hover:bg-white/5"><MoreHorizontal size={15}/></button>
+          {openColumn === column.id && <div className="absolute right-0 top-8 z-20 w-44 rounded-xl border border-white/10 bg-[#111819] p-1.5 shadow-xl"><button onClick={()=>addToColumn(column.id)} className="w-full rounded-lg px-3 py-2 text-left text-xs hover:bg-white/5">{language === "ru" ? "Добавить карточку" : "Add card"}</button><button onClick={()=>{const name=prompt(language === "ru" ? "Название колонки" : "Column name",column.title);if(name?.trim())setColumns(cols=>cols.map(c=>c.id===column.id?{...c,title:name.trim()}:c));setOpenColumn(null)}} className="w-full rounded-lg px-3 py-2 text-left text-xs hover:bg-white/5">{language === "ru" ? "Переименовать" : "Rename"}</button><button onClick={()=>{if(confirm(language === "ru" ? `Удалить все карточки из «${column.title}»?` : `Clear ${column.title}?`))setColumns(cols=>cols.map(c=>c.id===column.id?{...c,tasks:[]}:c));setOpenColumn(null)}} className="w-full rounded-lg px-3 py-2 text-left text-xs text-[var(--danger)] hover:bg-[rgba(255,113,113,.07)]">{language === "ru" ? "Очистить колонку" : "Clear column"}</button></div>}
+        </div>
+        <div className="space-y-2">
+          {column.tasks.filter(task => { const text = `${task.title} ${task.labels.join(" ")}`.toLowerCase(); const matchesQuery = text.includes(query.toLowerCase()); const matchesFilter = filterMode === "all" || (filterMode === "high" && task.priority === "High") || (filterMode === "due" && !!task.due) || (filterMode === "blocked" && !!task.blocked); return matchesQuery && matchesFilter; }).map(task => <article key={task.id} draggable onDragStart={() => setDragged({taskId:task.id,from:column.id})} onClick={() => setOpenTask(task)} className="card transition-soft cursor-grab rounded-xl p-3 active:cursor-grabbing"><div className="flex items-start justify-between gap-2"><span className={`rounded-md px-1.5 py-1 text-[9px] font-medium ${priorityClass[task.priority]}`}>{priorityTitles[task.priority]}</span>{task.blocked&&<ShieldAlert size={14} className="text-[var(--danger)]"/>}</div><div className="mt-2 text-sm font-medium leading-5">{task.title}</div><div className="mt-2.5 flex flex-wrap gap-1.5">{task.labels.map(label=><span key={label} className="rounded-md border border-white/8 bg-white/[.025] px-1.5 py-1 text-[9px] text-[var(--muted)]">{label}</span>)}</div><div className="mt-3 flex items-center justify-between gap-2 text-[10px] text-[var(--muted)]"><div className="flex items-center gap-2.5">{task.checklist&&<span className="flex items-center gap-1"><CheckSquare2 size={12}/>{task.checklist}</span>}{task.comments?<span className="flex items-center gap-1"><MessageCircle size={12}/>{task.comments}</span>:null}{task.attachments?<span className="flex items-center gap-1"><Paperclip size={12}/>{task.attachments}</span>:null}</div>{task.due&&<span className="flex items-center gap-1"><CalendarClock size={12}/>{task.due}</span>}</div></article>)}
+          <button onClick={() => addToColumn(column.id)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/8 py-2.5 text-xs text-[var(--muted)] hover:bg-white/[.025] hover:text-white"><Plus size={14}/>{language === "ru" ? "Добавить карточку" : "Add card"}</button>
+        </div>
+      </section>)}
     </div>
-  );
+    {openTask&&<div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={()=>setOpenTask(null)}><div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#111819] p-5 shadow-2xl" onClick={event=>event.stopPropagation()}><div className="flex items-center justify-between"><div className="text-xs text-[var(--muted)]">{language === "ru" ? "Карточка" : "Card"}</div><button onClick={()=>setOpenTask(null)} className="grid h-8 w-8 place-items-center rounded-lg hover:bg-white/5">×</button></div><h3 className="mt-3 text-xl font-semibold">{openTask.title}</h3><p className="mt-2 text-sm leading-6 text-[var(--muted)]">{openTask.description || (language === "ru" ? "В рабочей доске карточку можно редактировать, назначить срок, приоритет и чек-лист." : "In a workspace board you can edit this card, assign a deadline, priority and checklist.")}</p><div className="mt-5 flex flex-wrap gap-2">{openTask.labels.map(label=><span key={label} className="rounded-lg bg-white/5 px-2 py-1 text-[10px] text-[var(--muted)]">{label}</span>)}<span className="rounded-lg bg-white/5 px-2 py-1 text-[10px] text-[var(--muted)]">{priorityTitles[openTask.priority]}</span></div><button onClick={()=>setOpenTask(null)} className="mt-5 w-full rounded-xl bg-[var(--accent)] py-2.5 text-xs font-semibold text-[#06211c]">{language === "ru" ? "Закрыть" : "Close"}</button></div></div>}
+  </div>;
 }

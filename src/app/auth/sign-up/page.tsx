@@ -15,12 +15,17 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  const [error, setError] = useState("");
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!name.trim() || !email.trim() || password.length < 6) return;
+    if (!name.trim() || !email.trim() || password.length < 6) { setError("Заполни все поля. Пароль — минимум 6 символов."); return; }
+    const bytes = new TextEncoder().encode(password);
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    const hash = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2,"0")).join("");
     window.localStorage.setItem("flowboard-account", "created");
     window.localStorage.setItem("flowboard-user-name", name.trim());
-    window.localStorage.setItem("flowboard-user-email", email.trim());
+    window.localStorage.setItem("flowboard-user-email", email.trim().toLowerCase());
+    window.localStorage.setItem("flowboard-password-hash", hash);
     router.push("/app/overview");
   }
 
@@ -38,6 +43,7 @@ export default function SignUpPage() {
             <label className="grid gap-2 text-sm"><span>{copy.password}</span><input required minLength={6} value={password} onChange={(event) => setPassword(event.target.value)} className="focus-ring h-11 rounded-xl border border-white/9 bg-white/[.025] px-3 outline-none focus:border-[var(--accent)]" type="password" placeholder="••••••••" /></label>
             <button type="submit" className="mt-2 flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--accent)] text-sm font-semibold text-[#06211c] transition-soft hover:bg-[var(--accent-2)]">{copy.createWorkspaceButton} <ArrowRight size={15} /></button>
           </form>
+          {error && <div className="rounded-xl border border-[rgba(255,113,113,.18)] bg-[rgba(255,113,113,.05)] px-3 py-2 text-xs text-[var(--danger)]">{error}</div>}
           <div className="mt-6 grid gap-2 text-xs text-[var(--muted)]"><span className="flex items-center gap-2"><Check size={13} className="text-[var(--success)]" /> {copy.realtimeTitle}</span><span className="flex items-center gap-2"><Check size={13} className="text-[var(--success)]" /> {copy.visualWorkflow}</span><span className="flex items-center gap-2"><Check size={13} className="text-[var(--success)]" /> {copy.pulseTitle}</span></div>
           <p className="mt-5 border-t border-white/8 pt-4 text-xs leading-5 text-[var(--muted)]">{copy.authNote}</p>
           <div className="mt-5 text-center text-sm text-[var(--muted)]">{copy.alreadyAccount} <Link href="/auth/sign-in" className="text-white hover:underline">{copy.signIn}</Link></div>

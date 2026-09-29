@@ -1,28 +1,29 @@
 # Flowboard
 
-Flowboard is a modern realtime project-management SaaS concept inspired by Kanban workflows.
+Modern visual project management workspace for small teams and makers.
 
-## v0.2
+## v0.3.0
 
-This release focuses on UX/UI polish and product separation:
+The current build is a functional product prototype with real client-side state, not a static UI mock.
 
-- Russian UI is now the default, with RU/EN switching.
-- Public demo data lives only on `/demo`.
-- Local sign-up/sign-in creates a clean user workspace.
-- The user workspace can create local boards until Supabase is connected.
-- Refined top navigation, workspace navigation and landing footer.
-- New teal/mint visual accent.
-- Responsive layouts and improved focus states.
+### Included
 
-## Stack
-
-- Next.js 16 App Router
-- React 19
-- TypeScript
-- Tailwind CSS 4
-- Supabase
-- Liveblocks
-- Vercel
+- Russian / English interface
+- Workspace auth flow with local credential verification
+- Workspace-wide boards list
+- Create, rename and delete boards
+- Kanban columns with create / rename / delete
+- Drag & drop cards between columns
+- Create and edit cards
+- Priority, labels, due dates, checklist progress and blocked state
+- Search across boards and cards
+- Project Pulse computed from board state
+- Calendar page built from task deadlines
+- Members page and invitation-link workflow
+- Profile settings and data reset
+- Responsive mobile navigation
+- Persistent local workspace state in `localStorage`
+- Public demo isolated from personal workspace data
 
 ## Run locally
 
@@ -33,30 +34,32 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-## Demo flow
+### Main routes
 
-- `/` — product landing page
-- `/demo` — interactive public demo board
-- `/auth/sign-up` — local demo registration
-- `/auth/sign-in` — local demo login
-- `/app/overview` — personal workspace shell
+- `/` — product landing
+- `/demo` — interactive public demo
+- `/auth/sign-up` — account creation
+- `/auth/sign-in` — account sign in
+- `/app/overview` — workspace overview
+- `/app/boards` — boards
+- `/app/boards/[boardId]` — Kanban board
+- `/app/calendar` — deadlines
+- `/app/members` — members and invitations
+- `/app/settings` — profile and local data settings
 
-The current auth and board persistence are intentionally local. The next implementation phase will replace these with Supabase Auth, PostgreSQL persistence and RLS, followed by Liveblocks realtime rooms.
+## Product direction
 
-## GitHub setup
+The next backend milestone replaces the local persistence adapter with Supabase Auth + PostgreSQL + RLS, then adds Liveblocks presence and realtime collaboration. The relational schema is already kept in `supabase-schema.sql` as the domain source for that migration.
 
-The VS Code `Publish Branch` action appears only after the folder has been initialized as a Git repository, has at least one commit, and has a local branch that is not yet published to a remote.
 
-From the project folder, the direct PowerShell route is:
+## GitHub Pages
 
-```powershell
-git --version
-git init -b main
-git add .
-git commit -m "feat: start Flowboard v0.2"
-git branch -M main
-git remote add origin https://github.com/K0Teu4/flowboard.git
-git push -u origin main
-```
+Flowboard has a static showcase deployment for GitHub Pages. GitHub Actions builds the Next.js static export and publishes it automatically from `main`. The public showcase is intended for UI/UX review and localStorage-powered interaction.
 
-Create the empty `K0Teu4/flowboard` repository on GitHub before the final two commands. Do not initialize that GitHub repository with another README, `.gitignore`, or license, because this project already contains them.
+Project Pages URL:
+`https://k0teu4.github.io/flowboard/`
+
+Interactive demo:
+`https://k0teu4.github.io/flowboard/demo/`
+
+The full SaaS version will use a server-capable deployment such as Vercel for Supabase and Liveblocks server-side integration; GitHub Pages is the public static showcase.

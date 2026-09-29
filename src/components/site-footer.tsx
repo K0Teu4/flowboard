@@ -36,9 +36,9 @@ export function SiteFooter() {
           <div>
             <div className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--text)]">{copy.footerResources}</div>
             <div className="mt-4 grid gap-3 text-sm text-[var(--muted)]">
-              <a href="https://github.com/K0Teu4" target="_blank" rel="noreferrer" className="hover:text-[var(--text)]">{resourceLinks[0]}</a>
-              <a href="#" className="hover:text-[var(--text)]">{resourceLinks[1]}</a>
-              <a href="#" className="inline-flex items-center gap-2 hover:text-[var(--text)]"><CheckCircle2 size={14} className="text-[var(--success)]" />{copy.footerStatus}</a>
+              <a href="https://github.com/K0Teu4/flowboard" target="_blank" rel="noreferrer" className="hover:text-[var(--text)]">{resourceLinks[0]}</a>
+              <a href="https://github.com/K0Teu4/flowboard/tree/main/docs" target="_blank" rel="noreferrer" className="hover:text-[var(--text)]">{resourceLinks[1]}</a>
+              <a href="https://github.com/K0Teu4/flowboard/actions" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 hover:text-[var(--text)]"><CheckCircle2 size={14} className="text-[var(--success)]" />{copy.footerStatus}</a>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/components/language-provider";
+import { WorkspaceProvider } from "@/lib/workspace-store";
 
 export const metadata: Metadata = {
   title: "Flowboard — Plan. Focus. Ship.",
@@ -11,7 +12,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="ru">
       <body>
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider><WorkspaceProvider>{children}</WorkspaceProvider></LanguageProvider>
       </body>
     </html>
   );
