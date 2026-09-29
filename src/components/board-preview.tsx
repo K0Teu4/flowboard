@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CalendarClock, CheckSquare2, MessageCircle, MoreHorizontal, Paperclip, Plus, ShieldAlert } from "lucide-react";
+import { CalendarClock, CheckSquare2, MessageCircle, MoreHorizontal, Paperclip, Plus, ShieldAlert, X } from "lucide-react";
 import { boardColumns, type Task } from "@/lib/mock-data";
 import { useLanguage } from "@/components/language-provider";
 
