@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0a0d11;
+  --panel: #10151b;
+  --panel-2: #141a21;
+  --panel-3: #1a2129;
+  --border: rgba(255,255,255,.09);
+  --text: #f4f7fb;
+  --muted: #8f9baa;
+  --accent: #9b7bff;
+  --accent-2: #7c5cff;
+  --success: #39d69b;
+  --warning: #f2bf69;
+  --danger: #ff7171;
+}
+
+* { box-sizing: border-box; }
+html { min-height: 100%; background: var(--bg); }
+body { margin: 0; min-height: 100%; background: radial-gradient(circle at 85% -10%, rgba(124,92,255,.18), transparent 34%), var(--bg); color: var(--text); font-family: Arial, Helvetica, sans-serif; }
+button, input { font: inherit; }
+::selection { background: rgba(155,123,255,.3); }
+
+.shell { background: linear-gradient(180deg, rgba(255,255,255,.02), transparent 120px), var(--bg); }
+.glass { background: rgba(16,21,27,.76); border: 1px solid var(--border); backdrop-filter: blur(18px); }
+.card { background: var(--panel-2); border: 1px solid var(--border); }
+.card:hover { border-color: rgba(155,123,255,.34); transform: translateY(-1px); }
+.transition-soft { transition: 180ms ease; }
+
+.gradient-text { background: linear-gradient(120deg, #fff 15%, #bba7ff 62%, #9b7bff 95%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+.grid-fade { background-image: linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px); background-size: 40px 40px; mask-image: linear-gradient(to bottom, rgba(0,0,0,.85), transparent 90%); }
+
+.scrollbar-thin::-webkit-scrollbar { height: 7px; width: 7px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #2a313a; border-radius: 999px; }
+
+@keyframes float-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.animate-float-in { animation: float-in .45s ease both; }
