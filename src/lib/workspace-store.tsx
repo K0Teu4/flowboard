@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { boardColumns, members as initialMembers, type BoardColumn, type Task } from "@/lib/mock-data";
+import { getCurrentUser } from "@/lib/auth-store";
 
 export type Board = {
   id: string;
@@ -19,7 +20,11 @@ type WorkspaceState = {
   activity: Activity[];
 };
 
-const KEY = "flowboard-workspace-v3";
+const LEGACY_KEY = "flowboard-workspace-v3";
+function workspaceKey() {
+  const user = getCurrentUser();
+  return user ? `flowboard-workspace-${user.id}` : LEGACY_KEY;
+}
 
 const starterBoard: Board = {
   id: "board-demo",
@@ -45,7 +50,9 @@ function cloneSampleBoard(): Board {
 
 function readState(): WorkspaceState {
   if (typeof window === "undefined") return { boards: [], members: initialMembers, activity: [] };
-  const raw = window.localStorage.getItem(KEY);
+  const user = getCurrentUser();
+  if (!user) return { boards: [], members: initialMembers, activity: [] };
+  const raw = window.localStorage.getItem(workspaceKey());
   if (!raw) return { boards: [], members: initialMembers, activity: [] };
   try { return JSON.parse(raw) as WorkspaceState; } catch { return { boards: [], members: initialMembers, activity: [] }; }
 }
@@ -74,7 +81,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => { setState(readState()); setHydrated(true); }, []);
-  useEffect(() => { if (hydrated) window.localStorage.setItem(KEY, JSON.stringify(state)); }, [hydrated, state]);
+  useEffect(() => { if (hydrated) window.localStorage.setItem(workspaceKey(), JSON.stringify(state)); }, [hydrated, state]);
 
   const withActivity = (next: WorkspaceState, text: string): WorkspaceState => ({
     ...next,
@@ -138,7 +145,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setState(prev => withActivity(prev, "Добавлен комментарий к задаче"));
     },
     resetWorkspace() {
-      window.localStorage.removeItem(KEY);
+      window.localStorage.removeItem(workspaceKey());
       setState({ boards: [], members: initialMembers, activity: [] });
     },
     seedStarterBoard() {
