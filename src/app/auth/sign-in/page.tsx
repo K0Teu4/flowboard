@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Brand } from "@/components/brand";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useLanguage } from "@/components/language-provider";
+import { readStoredUser, signInUser } from "@/lib/auth-store";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -17,14 +18,13 @@ export default function SignInPage() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const storedEmail = window.localStorage.getItem("flowboard-user-email");
-    const storedHash = window.localStorage.getItem("flowboard-password-hash");
-    const bytes = new TextEncoder().encode(password);
-    const digest = await crypto.subtle.digest("SHA-256", bytes);
-    const hash = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2,"0")).join("");
-    if (!storedEmail || !storedHash || storedEmail !== email.trim().toLowerCase() || storedHash !== hash) { setError("Неверная почта или пароль."); return; }
-    window.localStorage.setItem("flowboard-account", "created");
-    router.push("/app/overview");
+    setError("");
+    const user = readStoredUser();
+    if (!user || !(await signInUser(email, password))) {
+      setError(copy.invalidCredentials);
+      return;
+    }
+    router.replace("/app/overview");
   }
 
   return (
