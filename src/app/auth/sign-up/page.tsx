@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Brand } from "@/components/brand";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useLanguage } from "@/components/language-provider";
+import { readStoredUser, registerUser } from "@/lib/auth-store";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -18,15 +19,14 @@ export default function SignUpPage() {
   const [error, setError] = useState("");
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!name.trim() || !email.trim() || password.length < 6) { setError("Заполни все поля. Пароль — минимум 6 символов."); return; }
-    const bytes = new TextEncoder().encode(password);
-    const digest = await crypto.subtle.digest("SHA-256", bytes);
-    const hash = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2,"0")).join("");
-    window.localStorage.setItem("flowboard-account", "created");
-    window.localStorage.setItem("flowboard-user-name", name.trim());
-    window.localStorage.setItem("flowboard-user-email", email.trim().toLowerCase());
-    window.localStorage.setItem("flowboard-password-hash", hash);
-    router.push("/app/overview");
+    setError("");
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!name.trim() || !normalizedEmail || password.length < 6) { setError(copy.passwordTooShort); return; }
+    const existing = readStoredUser();
+    if (existing?.email === normalizedEmail) { setError(copy.accountExists); return; }
+    await registerUser(name, normalizedEmail, password);
+    window.localStorage.removeItem("flowboard-workspace-v3");
+    router.replace("/app/overview");
   }
 
   return (
