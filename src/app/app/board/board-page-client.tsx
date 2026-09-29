@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { CalendarClock, CheckSquare2, Edit3, Filter, MoreHorizontal, Plus, Search, ShieldAlert, Trash2, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { useLanguage } from "@/components/language-provider";
@@ -24,7 +24,6 @@ export default function BoardPage() {
   const [renameColumnId, setRenameColumnId] = useState<string | null>(null);
   const [renameColumnValue, setRenameColumnValue] = useState("");
   const [deleteColumnId, setDeleteColumnId] = useState<string | null>(null);
-  const [deleteBoardOpen, setDeleteBoardOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [priorityFilter, setPriorityFilter] = useState<"all" | Task["priority"]>("all");
   const [dueFilter, setDueFilter] = useState(false);
@@ -54,7 +53,7 @@ export default function BoardPage() {
   const doneColumn = currentBoard.columns.find(column => column.id === "done") ?? currentBoard.columns[currentBoard.columns.length - 1];
   const done = doneColumn?.tasks.length || 0;
   const progress = total ? Math.round((done / total) * 100) : 0;
-  const filtered = useMemo(() => currentBoard.columns.map(column => ({
+  const filtered = currentBoard.columns.map(column => ({
     ...column,
     tasks: column.tasks.filter(task => {
       const haystack = `${task.title} ${task.description || ""} ${task.labels.join(" ")}`.toLowerCase();
@@ -64,10 +63,10 @@ export default function BoardPage() {
       const matchesBlocked = !blockedFilter || Boolean(task.blocked);
       return matchesQuery && matchesPriority && matchesDue && matchesBlocked;
     }),
-  })), [currentBoard, query, priorityFilter, dueFilter, blockedFilter]);
+  }));
 
   function createTask(columnId: string) {
-    const task = addTask(currentBoard.id, columnId, { title: language === "ru" ? "Новая задача" : "New task", labels: [language === "ru" ? "Работа" : "Work"], priority: "Medium" });
+    addTask(currentBoard.id, columnId, { title: language === "ru" ? "Новая задача" : "New task", labels: [language === "ru" ? "Работа" : "Work"], priority: "Medium" });
     setToast(language === "ru" ? "Карточка добавлена" : "Card added");
   }
 
@@ -183,9 +182,6 @@ export default function BoardPage() {
     </AppShell>
   );
 
-  function routerReplaceBoards() {
-    window.location.href = "/app/boards";
-  }
 }
 
 function MiniModal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
