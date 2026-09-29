@@ -7,7 +7,9 @@ export type Task = {
   due?: string;
   assignee?: string;
   checklist?: string;
+  checklistItems?: { id: string; text: string; done: boolean }[];
   comments?: number;
+  commentItems?: { id: string; author: string; body: string; createdAt: string }[];
   attachments?: number;
   blocked?: boolean;
 };
