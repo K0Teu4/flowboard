@@ -99,6 +99,9 @@ type Dictionary = {
   share: string;
   add: string;
   searchBoard: string;
+  passwordTooShort: string;
+  accountExists: string;
+  invalidCredentials: string;
 };
 
 const copy: Record<Language, Dictionary> = {
@@ -197,6 +200,9 @@ const copy: Record<Language, Dictionary> = {
     share: "Поделиться",
     add: "Добавить",
     searchBoard: "Поиск по доске",
+    passwordTooShort: "Заполни все поля. Пароль — минимум 6 символов.",
+    accountExists: "Пользователь с такой почтой уже существует на этом устройстве.",
+    invalidCredentials: "Неверная почта или пароль.",
   },
   en: {
     language: "Language",
@@ -293,6 +299,9 @@ const copy: Record<Language, Dictionary> = {
     share: "Share",
     add: "Add",
     searchBoard: "Search board",
+    passwordTooShort: "Fill in all fields. Password must be at least 6 characters.",
+    accountExists: "An account with this email already exists on this device.",
+    invalidCredentials: "Incorrect email or password.",
   },
 };
 
