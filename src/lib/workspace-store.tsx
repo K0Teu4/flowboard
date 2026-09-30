@@ -137,7 +137,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       const columns = columnNames.map((name, index) => ({
         id: `${crypto.randomUUID()}-${index}`,
         title: name,
-        tasks: index === 0 && template !== "blank" ? seedTasks[template].map((taskTitle, taskIndex) => ({ id: crypto.randomUUID(), title: taskTitle, priority: taskIndex === 0 ? "High" : "Medium", labels: [template === "product" ? (language === "ru" ? "Продукт" : "Product") : template === "content" ? (language === "ru" ? "Контент" : "Content") : (language === "ru" ? "Личное" : "Personal")] })) : [],
+        tasks: index === 0 && template !== "blank" ? seedTasks[template].map((taskTitle, taskIndex) => ({ id: crypto.randomUUID(), title: taskTitle, priority: taskIndex === 0 ? ("High" as Task["priority"]) : ("Medium" as Task["priority"]), labels: [template === "product" ? (language === "ru" ? "Продукт" : "Product") : template === "content" ? (language === "ru" ? "Контент" : "Content") : (language === "ru" ? "Личное" : "Personal")] })) : [],
       }));
       const board: Board = { id: crypto.randomUUID(), title, description, columns, createdAt: now(), background: "mint", favorite: false };
       setState(prev => withActivity({ ...prev, boards: [...prev.boards, board] }, `Создана доска «${title}»`));
