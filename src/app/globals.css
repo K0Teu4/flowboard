@@ -18,7 +18,7 @@
 * { box-sizing: border-box; }
 html { min-height: 100%; background: var(--bg); }
 body { margin: 0; min-height: 100%; color: var(--text); font-family: Arial, Helvetica, sans-serif; background: var(--bg); position: relative; overflow-x: hidden; }
-body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -2; background: radial-gradient(circle at 15% 8%, rgba(53,214,196,.11), transparent 26rem), radial-gradient(circle at 88% 2%, rgba(93,122,255,.10), transparent 30rem), radial-gradient(circle at 50% 55%, rgba(255,255,255,.025), transparent 34rem), linear-gradient(180deg, #0a0f10 0%, #0a0f10 42%, #080c0e 100%); }
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -2; background: radial-gradient(circle at 12% 6%, rgba(45,212,191,.15), transparent 25rem), radial-gradient(circle at 88% 10%, rgba(90,112,255,.13), transparent 31rem), radial-gradient(circle at 52% 72%, rgba(255,255,255,.035), transparent 36rem), linear-gradient(180deg, #0b1011 0%, #090e0f 45%, #070b0d 100%); }
 body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1; opacity: .42; background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size: 48px 48px; mask-image: linear-gradient(to bottom, rgba(0,0,0,.85), transparent 78%); }
 button, input { font: inherit; }
 button { cursor: pointer; }
@@ -46,3 +46,8 @@ select option { background: #111819; color: var(--text); }
 .card, .glass, [class*="rounded-3xl"] { will-change: auto; }
 .content-auto { content-visibility: auto; contain-intrinsic-size: 300px; }
 @media (max-width: 767px) { body::after { background-size: 36px 36px; opacity: .28; } }
+
+.landing-shell { position: relative; background: radial-gradient(circle at 50% 18%, rgba(45,212,191,.035), transparent 28rem), linear-gradient(180deg, rgba(255,255,255,.018), transparent 14rem); }
+.landing-orb { position: absolute; width: 32rem; height: 32rem; border-radius: 999px; filter: blur(72px); pointer-events: none; opacity: .32; }
+.landing-orb-a { top: 3rem; left: -16rem; background: rgba(45,212,191,.12); }
+.landing-orb-b { top: 7rem; right: -18rem; background: rgba(99,102,241,.10); }
