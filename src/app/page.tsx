@@ -10,6 +10,12 @@ import { useLanguage } from "@/components/language-provider";
 
 export default function Home() {
   const { copy, language } = useLanguage();
+  const previewColumns = language === "ru" ? [
+    { id: "backlog", title: "Бэклог", tasks: [{ title: "Сформировать сценарий онбординга", label: "Продукт", due: "Без срока", assignee: "DK" }, { title: "Подготовить чек-лист релиза", label: "Запуск", due: "Без срока", assignee: "AM" }, { title: "Проверить события аналитики", label: "Данные", due: "Без срока", assignee: "—" }] },
+    { id: "progress", title: "В работе", tasks: [{ title: "Собрать дашборд", label: "Фронтенд", due: "Сегодня", assignee: "DK" }, { title: "Подключить роли", label: "Бэкенд", due: "Завтра", assignee: "AM" }, { title: "Доработать пустые состояния", label: "UX", due: "Без срока", assignee: "DK" }] },
+    { id: "review", title: "Проверка", tasks: [{ title: "Настройки рабочего пространства", label: "UX", due: "2 окт.", assignee: "AM" }, { title: "Текст приглашения", label: "Контент", due: "Без срока", assignee: "DK" }] },
+    { id: "done", title: "Готово", tasks: [{ title: "Новая главная", label: "Фронтенд", due: "Без срока", assignee: "DK" }, { title: "Авторизация", label: "Бэкенд", due: "Готово", assignee: "AM" }, { title: "Схема базы данных", label: "Бэкенд", due: "Без срока", assignee: "—" }] },
+  ] : boardColumns;
   const features = [
     { icon: Layers3, title: copy.visualWorkflow, text: copy.visualWorkflowCopy },
     { icon: Target, title: copy.pulseTitle, text: copy.pulseCopy },
@@ -65,15 +71,15 @@ export default function Home() {
                 </div>
                 <div className="scrollbar-thin overflow-x-auto p-3 sm:p-4">
                   <div className="grid min-w-[700px] grid-cols-4 gap-2.5 sm:gap-3">
-                    {boardColumns.map(column => (
+                    {previewColumns.map(column => (
                       <div key={column.id} className="rounded-2xl border border-white/6 bg-white/[.02] p-2">
                         <div className="flex items-center justify-between px-1 pb-2"><div className="text-[11px] font-medium">{column.title}</div><div className="text-[9px] text-[var(--muted)]">{column.tasks.length}</div></div>
                         <div className="space-y-1.5">
                           {column.tasks.slice(0, 3).map(task => (
                             <div key={task.id} className="card rounded-xl p-2.5">
-                              <div className="flex items-center justify-between gap-2"><span className="text-[9px] text-[var(--muted)]">{task.labels[0]}</span><span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" /></div>
+                              <div className="flex items-center justify-between gap-2"><span className="text-[9px] text-[var(--muted)]">{language === "ru" ? task.label : task.labels[0]}</span><span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" /></div>
                               <div className="mt-1.5 text-[12px] font-medium leading-4">{task.title}</div>
-                              <div className="mt-2.5 flex items-center justify-between text-[9px] text-[var(--muted)]"><span>{task.due ? task.due : language === "ru" ? "Без срока" : "No due date"}</span><span>{task.assignee || "—"}</span></div>
+                              <div className="mt-2.5 flex items-center justify-between text-[9px] text-[var(--muted)]"><span>{task.due ? (language === "ru" ? task.due : task.due) : language === "ru" ? "Без срока" : "No due date"}</span><span>{task.assignee || "—"}</span></div>
                             </div>
                           ))}
                         </div>
