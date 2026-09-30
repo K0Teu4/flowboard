@@ -30,6 +30,7 @@ export default function BoardPage() {
     updateTask,
     deleteTask,
     moveTask,
+    moveTaskToIndex,
     renameColumn,
     deleteColumn,
     duplicateBoard,
@@ -230,7 +231,7 @@ export default function BoardPage() {
                   </div>
                 </div>
                 <div className="content-auto space-y-2">
-                  {column.tasks.map(task => <article key={task.id} draggable onDragStart={event => event.dataTransfer.setData("flowboard-task", `${column.id}:${task.id}`)} onClick={() => setActiveTask({ columnId: column.id, task })} className="card cursor-grab rounded-xl p-3 active:cursor-grabbing">
+                  {column.tasks.map((task, taskIndex) => <article key={task.id} draggable onDragStart={event => event.dataTransfer.setData("flowboard-task", `${column.id}:${task.id}`)} onDragOver={event => event.preventDefault()} onDrop={event => { event.stopPropagation(); const data = event.dataTransfer.getData("flowboard-task"); if (!data) return; const [fromId, movingId] = data.split(":"); if (movingId && movingId !== task.id) moveTaskToIndex(currentBoard.id, movingId, fromId, column.id, taskIndex); }} onClick={() => setActiveTask({ columnId: column.id, task })} className="card cursor-grab rounded-xl p-3 active:cursor-grabbing">
                     <div className="flex items-start justify-between gap-2"><span className="rounded-md bg-white/6 px-1.5 py-1 text-[9px] text-[var(--muted)]">{language === "ru" ? (task.priority === "High" ? "Высокий" : task.priority === "Medium" ? "Средний" : "Низкий") : task.priority}</span>{task.blocked && <ShieldAlert size={14} className="text-[var(--danger)]" />}</div>
                     <div className="mt-2 text-sm font-medium leading-5">{task.title}</div>
                     <div className="mt-2.5 flex flex-wrap gap-1.5">{task.labels.map(label => <span key={label} className="rounded-md border border-white/8 px-1.5 py-1 text-[9px] text-[var(--muted)]">{label}</span>)}</div>
