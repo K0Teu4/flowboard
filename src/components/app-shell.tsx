@@ -18,7 +18,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [menu, setMenu] = useState<"workspace" | "search" | "notifications" | "account" | null>(null);
   const [query, setQuery] = useState("");
 
-  useEffect(() => { setName(getCurrentUser()?.name || "Dmitry"); }, []);
+  useEffect(() => {
+    const syncName = () => setName(getCurrentUser()?.name || "Dmitry");
+    syncName();
+    window.addEventListener("flowboard-auth-changed", syncName);
+    return () => window.removeEventListener("flowboard-auth-changed", syncName);
+  }, []);
   const results = useMemo(() => {
     if (!query.trim()) return [];
     return state.boards.flatMap(b => b.columns.flatMap(c => c.tasks.map(t => ({ boardId: b.id, board: b.title, task: t.title })))).filter(x => `${x.board} ${x.task}`.toLowerCase().includes(query.toLowerCase())).slice(0, 8);
