@@ -9,6 +9,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { useLanguage } from "@/components/language-provider";
 import { useWorkspace } from "@/lib/workspace-store";
 import { getCurrentUser, signOutUser } from "@/lib/auth-store";
+import { sitePath } from "@/lib/site-path";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -31,7 +32,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   function signOut() {
     signOutUser();
-    router.replace("/");
+    window.location.replace(sitePath("/"));
   }
 
   return <div className="shell min-h-screen">
@@ -44,7 +45,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <button type="button" onClick={() => setMenu(menu === "search" ? null : "search")} aria-label={copy.search} className="grid h-9 w-9 place-items-center rounded-xl text-[var(--muted)] hover:bg-white/5 hover:text-white lg:w-auto lg:px-3"><Search size={15}/><span className="ml-2 hidden text-xs lg:block">{copy.search}</span></button>
           <LanguageSwitcher compact />
           <button type="button" onClick={() => setMenu(menu === "notifications" ? null : "notifications")} aria-label={copy.notifications} className="relative grid h-9 w-9 place-items-center rounded-xl text-[var(--muted)] hover:bg-white/5 hover:text-white"><Bell size={16}/><span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[var(--accent)]"/></button>
-          <button type="button" onClick={() => setMenu(menu === "account" ? null : "account")} aria-label={copy.account} className="grid h-9 w-9 place-items-center rounded-full bg-[var(--accent)] text-xs font-bold text-[#06211c]">{name.slice(0,2).toUpperCase()}</button>
+          <button type="button" onClick={() => setMenu(menu === "account" ? null : "account")} aria-label={copy.account} className="grid h-9 w-9 place-items-center rounded-full bg-[var(--accent)] text-xs font-bold text-[#06211c]">{name ? name.slice(0,2).toUpperCase() : "F"}</button>
         </div>
       </div>
     </header>
