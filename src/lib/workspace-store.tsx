@@ -22,6 +22,7 @@ type WorkspaceState = {
   boards: Board[];
   members: typeof initialMembers;
   activity: Activity[];
+  membersVersion: 1;
 };
 
 const LEGACY_KEY = "flowboard-workspace-v3";
@@ -57,7 +58,7 @@ function cloneSampleBoard(): Board {
 }
 
 function readState(): WorkspaceState {
-  if (typeof window === "undefined") return { boards: [], members: initialMembers, activity: [] };
+  if (typeof window === "undefined") return { boards: [], members: [], activity: [], membersVersion: 1 };
   const user = getCurrentUser();
   if (!user) return { boards: [], members: initialMembers, activity: [] };
   const raw = window.localStorage.getItem(workspaceKey());
