@@ -4,14 +4,15 @@ import Link from "next/link";
 import { ArrowRight, Check, ClipboardList, Layers3, MousePointer2, Users, X } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "@/components/language-provider";
+import { getCurrentUser } from "@/lib/auth-store";
 import { sitePath } from "@/lib/site-path";
 
-const KEY = "flowboard-onboarding-v1";
+function onboardingKey() { return "flowboard-onboarding-v1-" + (getCurrentUser()?.id || "guest"); }
 
 export function OnboardingGuide() {
   const { language } = useLanguage();
   const [open, setOpen] = useState(() => {
-    try { return window.localStorage.getItem(KEY) !== "done"; } catch { return false; }
+    try { return window.localStorage.getItem(onboardingKey()) !== "done"; } catch { return false; }
   });
   const [step, setStep] = useState(0);
   const ru = language === "ru";
@@ -47,7 +48,7 @@ export function OnboardingGuide() {
   const Icon = current.icon;
 
   function finish() {
-    try { window.localStorage.setItem(KEY, "done"); } catch {}
+    try { window.localStorage.setItem(onboardingKey(), "done"); } catch {}
     setOpen(false);
   }
 
