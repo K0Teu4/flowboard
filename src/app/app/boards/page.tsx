@@ -4,7 +4,7 @@ import { LayoutGrid, Plus, Search, Star, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { useLanguage } from "@/components/language-provider";
-import { useWorkspace } from "@/lib/workspace-store";
+import { useWorkspace, type BoardTemplate } from "@/lib/workspace-store";
 
 export default function BoardsPage() {
   const { copy, language } = useLanguage();
@@ -12,6 +12,7 @@ export default function BoardsPage() {
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
   const [title, setTitle] = useState("");
+  const [template, setTemplate] = useState<BoardTemplate>("blank");
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const boards = useMemo(() => {
@@ -22,7 +23,7 @@ export default function BoardsPage() {
   function submit() {
     const value = title.trim();
     if (!value) return;
-    createBoard(value);
+    createBoard(value, "", template, language);
     setTitle("");
     setCreating(false);
   }
@@ -43,14 +44,24 @@ export default function BoardsPage() {
         </header>
 
         {creating && (
-          <section className="mt-6 rounded-2xl border border-white/8 bg-white/[.025] p-4">
+          <section className="mt-6 rounded-2xl border border-white/8 bg-white/[.025] p-4 sm:p-5">
             <label className="grid gap-2">
               <span className="text-xs text-[var(--muted)]">{language === "ru" ? "Название" : "Name"}</span>
               <input autoFocus value={title} onChange={(event) => setTitle(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") submit(); if (event.key === "Escape") { setCreating(false); setTitle(""); } }} className="focus-ring h-11 rounded-xl border border-white/8 bg-black/10 px-3 text-sm outline-none" placeholder={language === "ru" ? "Например, Запуск приложения" : "e.g. Product launch"} />
             </label>
-            <div className="mt-3 flex gap-2">
+            <div className="mt-5">
+              <div className="text-xs text-[var(--muted)]">{language === "ru" ? "Шаблон" : "Template"}</div>
+              <div className="mt-2 grid gap-2 sm:grid-cols-4">
+                {(["blank", "product", "content", "personal"] as const).map(item => {
+                  const labels = language === "ru" ? { blank: "Пустая", product: "Продукт", content: "Контент", personal: "Личное" } : { blank: "Blank", product: "Product", content: "Content", personal: "Personal" };
+                  const descriptions = language === "ru" ? { blank: "Чистая Kanban-доска", product: "Запуск и разработка", content: "Контент-план", personal: "Личные задачи" } : { blank: "A clean Kanban board", product: "Build and launch", content: "Content workflow", personal: "Personal tasks" };
+                  return <button type="button" key={item} onClick={() => setTemplate(item)} className={"rounded-2xl border p-3 text-left " + (template === item ? "border-[var(--accent)]/40 bg-[rgba(45,212,191,.06)]" : "border-white/8 bg-black/10 hover:bg-white/[.025]")}><div className="text-xs font-medium">{labels[item]}</div><div className="mt-1 text-[10px] leading-4 text-[var(--muted)]">{descriptions[item]}</div></button>;
+                })}
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
               <button type="button" onClick={submit} className="rounded-xl bg-[var(--accent)] px-3 py-2 text-xs font-semibold text-[#06211c]">{language === "ru" ? "Создать" : "Create"}</button>
-              <button type="button" onClick={() => { setCreating(false); setTitle(""); }} className="rounded-xl border border-white/8 px-3 py-2 text-xs text-[var(--muted)]">{copy.cancel}</button>
+              <button type="button" onClick={() => { setCreating(false); setTitle(""); setTemplate("blank"); }} className="rounded-xl border border-white/8 px-3 py-2 text-xs text-[var(--muted)]">{copy.cancel}</button>
             </div>
           </section>
         )}
