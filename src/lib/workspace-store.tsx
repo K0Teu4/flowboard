@@ -94,7 +94,13 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<WorkspaceState>({ boards: [], members: initialMembers, activity: [] });
   const [hydrated, setHydrated] = useState(false);
 
-  useEffect(() => { setState(readState()); setHydrated(true); }, []);
+  useEffect(() => {
+    const reload = () => setState(readState());
+    reload();
+    setHydrated(true);
+    window.addEventListener("flowboard-auth-changed", reload);
+    return () => window.removeEventListener("flowboard-auth-changed", reload);
+  }, []);
   useEffect(() => { if (hydrated) window.localStorage.setItem(workspaceKey(), JSON.stringify(state)); }, [hydrated, state]);
 
   const withActivity = (next: WorkspaceState, text: string): WorkspaceState => ({
