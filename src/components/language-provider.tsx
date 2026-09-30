@@ -151,7 +151,7 @@ const copy: Record<Language, Dictionary> = {
     footerResourceLinks: "GitHub|Документация|Статус",
     footerDemo: "Открыть живое демо",
     footerStatus: "Система работает",
-    footerVersion: "v0.5 · GitHub Pages",
+    footerVersion: "v0.6 · GitHub Pages",
     languageRussian: "Русский",
     languageEnglish: "English",
     createWorkspace: "Создай рабочее пространство",
