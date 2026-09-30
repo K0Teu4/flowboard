@@ -10,6 +10,7 @@ import { useLanguage } from "@/components/language-provider";
 import { useWorkspace } from "@/lib/workspace-store";
 import { getCurrentUser, signOutUser } from "@/lib/auth-store";
 import { sitePath } from "@/lib/site-path";
+import { OnboardingGuide } from "@/components/onboarding-guide";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -70,6 +71,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
       <main className="min-w-0 flex-1 pb-16 lg:pb-0">{children}</main>
     </div>
+    <OnboardingGuide />
     <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 border-t border-white/8 bg-[rgba(10,15,16,.94)] px-2 py-2 backdrop-blur-xl lg:hidden">
       <MobileLink href="/app/overview" icon={LayoutDashboard} text={copy.overview}/>
       <MobileLink href="/app/boards" icon={LayoutDashboard} text={copy.boards}/>
