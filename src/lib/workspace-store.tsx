@@ -79,6 +79,7 @@ const WorkspaceContext = createContext<null | {
   updateTask: (boardId: string, taskId: string, patch: Partial<Task>) => void;
   deleteTask: (boardId: string, taskId: string) => void;
   moveTask: (boardId: string, taskId: string, fromColumnId: string, toColumnId: string) => void;
+  moveTaskToIndex: (boardId: string, taskId: string, fromColumnId: string, toColumnId: string, toIndex: number) => void;
   addComment: (boardId: string, taskId: string, body: string) => void;
   addChecklistItem: (boardId: string, taskId: string, text: string) => void;
   toggleChecklistItem: (boardId: string, taskId: string, itemId: string) => void;
@@ -174,7 +175,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setState(prev => withActivity({ ...prev, boards: prev.boards.map(b => b.id === boardId ? { ...b, columns: b.columns.map(c => ({ ...c, tasks: c.tasks.filter(t => t.id !== taskId) })) } : b) }, "Задача удалена"));
     },
     moveTask(boardId: string, taskId: string, fromColumnId: string, toColumnId: string) {
-      if (fromColumnId === toColumnId) return;
       let moving: Task | undefined;
       setState(prev => {
         let boards = prev.boards.map(b => {
@@ -188,7 +188,30 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           }).map(c => c.id === toColumnId && moving ? { ...c, tasks: [...c.tasks, moving] } : c);
           return { ...b, columns };
         });
-        return withActivity({ ...prev, boards }, moving ? `Задача «${moving.title}» перемещена` : "Перемещена задача");
+        return moving ? withActivity({ ...prev, boards }, `Задача «${moving.title}» перемещена`) : prev;
+      });
+    },
+    moveTaskToIndex(boardId: string, taskId: string, fromColumnId: string, toColumnId: string, toIndex: number) {
+      setState(prev => {
+        const board = prev.boards.find(item => item.id === boardId);
+        const source = board?.columns.find(item => item.id === fromColumnId);
+        const moving = source?.tasks.find(item => item.id === taskId);
+        if (!board || !source || !moving) return prev;
+
+        const nextColumns = board.columns.map(column => ({ ...column, tasks: [...column.tasks] }));
+        const sourceIndex = nextColumns.find(item => item.id === fromColumnId)?.tasks.findIndex(item => item.id === taskId) ?? -1;
+        if (sourceIndex < 0) return prev;
+
+        nextColumns.find(item => item.id === fromColumnId)!.tasks.splice(sourceIndex, 1);
+        const target = nextColumns.find(item => item.id === toColumnId);
+        if (!target) return prev;
+        const adjustedIndex = fromColumnId === toColumnId && sourceIndex < toIndex ? toIndex - 1 : toIndex;
+        target.tasks.splice(Math.max(0, Math.min(adjustedIndex, target.tasks.length)), 0, moving);
+
+        return withActivity(
+          { ...prev, boards: prev.boards.map(item => item.id === boardId ? { ...item, columns: nextColumns } : item) },
+          `Задача «${moving.title}» перемещена`,
+        );
       });
     },
     addComment(boardId: string, taskId: string, body: string) {
