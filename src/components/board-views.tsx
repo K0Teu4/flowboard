@@ -195,3 +195,8 @@ export function BoardDashboardView({ board, language }: { board: Board; language
 function Metric({ title, value, icon: Icon }: { title: string; value: number; icon: typeof List }) {
   return <div className="rounded-2xl border border-white/8 bg-white/[.025] p-4"><div className="flex items-center justify-between text-xs text-[var(--muted)]"><span>{title}</span><Icon size={15} className="text-[var(--accent)]" /></div><div className="mt-3 text-2xl font-semibold">{value}</div></div>;
 }
+
+export function BoardViewIcon({ view }: { view: "board" | "table" | "calendar" | "dashboard" }) {
+  const Icon = view === "board" ? List : view === "table" ? Table2 : view === "calendar" ? CalendarDays : BarChart3;
+  return <Icon size={14} />;
+}
