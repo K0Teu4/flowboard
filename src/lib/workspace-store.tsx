@@ -60,10 +60,10 @@ function cloneSampleBoard(): Board {
 function readState(): WorkspaceState {
   if (typeof window === "undefined") return { boards: [], members: [], activity: [], membersVersion: 1 };
   const user = getCurrentUser();
-  if (!user) return { boards: [], members: initialMembers, activity: [] };
+  if (!user) return { boards: [], members: [], activity: [], membersVersion: 1 };
   const raw = window.localStorage.getItem(workspaceKey());
-  if (!raw) return { boards: [], members: initialMembers, activity: [] };
-  try { return JSON.parse(raw) as WorkspaceState; } catch { return { boards: [], members: initialMembers, activity: [] }; }
+  if (!raw) return { boards: [], members: [], activity: [], membersVersion: 1 };
+  try { return JSON.parse(raw) as WorkspaceState; } catch { return { boards: [], members: [], activity: [], membersVersion: 1 }; }
 }
 
 const WorkspaceContext = createContext<null | {
@@ -94,7 +94,7 @@ const WorkspaceContext = createContext<null | {
 function now() { return new Date().toISOString(); }
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<WorkspaceState>({ boards: [], members: initialMembers, activity: [] });
+  const [state, setState] = useState<WorkspaceState>({ boards: [], members: [], activity: [], membersVersion: 1 });
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -293,7 +293,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     },
     resetWorkspace() {
       window.localStorage.removeItem(workspaceKey());
-      setState({ boards: [], members: initialMembers, activity: [] });
+      setState({ boards: [], members: [], activity: [], membersVersion: 1 });
     },
     seedStarterBoard() {
       setState(prev => withActivity({ ...prev, boards: [starterBoard, ...prev.boards] }, `Создана доска «${starterBoard.title}»`));
