@@ -3,7 +3,6 @@
 import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Check, Eye, EyeOff, Sparkles } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { Brand } from "@/components/brand";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useLanguage } from "@/components/language-provider";
@@ -11,7 +10,6 @@ import { readStoredUser, registerUser } from "@/lib/auth-store";
 import { sitePath } from "@/lib/site-path";
 
 export default function SignUpPage() {
-  const router = useRouter();
   const { copy, language } = useLanguage();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -49,7 +47,7 @@ export default function SignUpPage() {
     setSubmitting(true);
     try {
       await registerUser(name, email, password);
-      router.replace(sitePath("/app/overview"));
+      window.location.replace(sitePath("/app/overview/"));
     } finally {
       setSubmitting(false);
     }
