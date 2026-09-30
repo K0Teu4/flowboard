@@ -5,6 +5,7 @@ import { CalendarClock, Check, CheckSquare2, Edit3, Filter, MoreHorizontal, Pape
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
+import { BoardCalendarView, BoardDashboardView, BoardTableView, BoardViewIcon } from "@/components/board-views";
 import { useLanguage } from "@/components/language-provider";
 import { useWorkspace, type Board } from "@/lib/workspace-store";
 import type { Task } from "@/lib/mock-data";
@@ -59,6 +60,7 @@ export default function BoardPage() {
   const [dueFilter, setDueFilter] = useState(false);
   const [blockedFilter, setBlockedFilter] = useState(false);
   const [toast, setToast] = useState("");
+  const [view, setView] = useState<"board" | "table" | "calendar" | "dashboard">("board");
 
   useEffect(() => {
     if (!toast) return;
@@ -157,9 +159,13 @@ export default function BoardPage() {
               </div>
 
               <div className="ml-auto flex flex-wrap items-center gap-2">
-                <div className="hidden items-center rounded-xl border border-white/8 bg-white/[.025] p-1 sm:flex">
-                  <span className="rounded-lg bg-white/8 px-3 py-1.5 text-xs text-white">{language === "ru" ? "Доска" : "Board"}</span>
-                  <Link href="/app/calendar" className="rounded-lg px-3 py-1.5 text-xs text-[var(--muted)] hover:text-white">{language === "ru" ? "Календарь" : "Calendar"}</Link>
+                <div className="flex max-w-full items-center overflow-x-auto rounded-xl border border-white/8 bg-white/[.025] p-1">
+                  {(["board", "table", "calendar", "dashboard"] as const).map((item) => (
+                    <button type="button" key={item} onClick={() => setView(item)} className={"inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs " + (view === item ? "bg-white/8 text-white" : "text-[var(--muted)] hover:text-white")}>
+                      <BoardViewIcon view={item} />
+                      {language === "ru" ? (item === "board" ? "Доска" : item === "table" ? "Таблица" : item === "calendar" ? "Календарь" : "Аналитика") : (item === "board" ? "Board" : item === "table" ? "Table" : item === "calendar" ? "Calendar" : "Analytics")}
+                    </button>
+                  ))}
                 </div>
                 <div className="relative">
                   <button type="button" onClick={() => setFilterOpen(value => !value)} className="grid h-10 w-10 place-items-center rounded-xl border border-white/8 bg-white/[.025] text-[var(--muted)] hover:text-white" aria-label={language === "ru" ? "Фильтры" : "Filters"}><Filter size={15} /></button>
@@ -185,7 +191,11 @@ export default function BoardPage() {
           </div>
         </div>
 
-        <div className="scrollbar-thin overflow-x-auto p-4 sm:p-6">
+        {view === "table" && <BoardTableView board={currentBoard} language={language} onOpenTask={(columnId, task) => setActiveTask({ columnId, task })} />}
+        {view === "calendar" && <BoardCalendarView board={currentBoard} language={language} onOpenTask={(columnId, task) => setActiveTask({ columnId, task })} />}
+        {view === "dashboard" && <BoardDashboardView board={currentBoard} language={language} />}
+        {view === "board" && (
+          <div className="scrollbar-thin overflow-x-auto p-4 sm:p-6">
           <div className="mx-auto flex min-w-[1050px] max-w-[1500px] items-start gap-3">
             {filtered.map(column => (
               <section key={column.id} onDragOver={event => event.preventDefault()} onDrop={event => {
@@ -214,7 +224,8 @@ export default function BoardPage() {
             ))}
             <button type="button" onClick={() => setColumnForm(true)} className="flex h-12 w-[280px] shrink-0 items-center justify-center gap-2 rounded-2xl border border-dashed border-white/10 bg-white/[.015] text-xs text-[var(--muted)] hover:bg-white/[.03] hover:text-white"><Plus size={15} />{language === "ru" ? "Добавить колонку" : "Add list"}</button>
           </div>
-        </div>
+          </div>
+        )}
 
         {columnForm && <MiniModal title={language === "ru" ? "Новая колонка" : "New list"} onClose={() => setColumnForm(false)}>
           <input autoFocus value={columnName} onChange={event => setColumnName(event.target.value)} onKeyDown={event => { if (event.key === "Enter" && columnName.trim()) { addColumn(currentBoard.id, columnName.trim()); setColumnName(""); setColumnForm(false); } }} placeholder={language === "ru" ? "Например, Тестирование" : "e.g. Review"} className="h-11 w-full rounded-xl border border-white/8 bg-white/[.025] px-3 text-sm text-white outline-none" />
