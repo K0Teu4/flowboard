@@ -10,12 +10,23 @@ import { useLanguage } from "@/components/language-provider";
 
 export default function Home() {
   const { copy, language } = useLanguage();
-  const previewColumns = language === "ru" ? [
-    { id: "backlog", title: "Бэклог", tasks: [{ title: "Сформировать сценарий онбординга", label: "Продукт", due: "Без срока", assignee: "DK" }, { title: "Подготовить чек-лист релиза", label: "Запуск", due: "Без срока", assignee: "AM" }, { title: "Проверить события аналитики", label: "Данные", due: "Без срока", assignee: "—" }] },
-    { id: "progress", title: "В работе", tasks: [{ title: "Собрать дашборд", label: "Фронтенд", due: "Сегодня", assignee: "DK" }, { title: "Подключить роли", label: "Бэкенд", due: "Завтра", assignee: "AM" }, { title: "Доработать пустые состояния", label: "UX", due: "Без срока", assignee: "DK" }] },
-    { id: "review", title: "Проверка", tasks: [{ title: "Настройки рабочего пространства", label: "UX", due: "2 окт.", assignee: "AM" }, { title: "Текст приглашения", label: "Контент", due: "Без срока", assignee: "DK" }] },
-    { id: "done", title: "Готово", tasks: [{ title: "Новая главная", label: "Фронтенд", due: "Без срока", assignee: "DK" }, { title: "Авторизация", label: "Бэкенд", due: "Готово", assignee: "AM" }, { title: "Схема базы данных", label: "Бэкенд", due: "Без срока", assignee: "—" }] },
-  ] : boardColumns;
+  const previewColumns = language === "ru"
+    ? [
+        { id: "backlog", title: "Бэклог", tasks: [{ title: "Сформировать сценарий онбординга", label: "Продукт", due: "Без срока", assignee: "DK" }, { title: "Подготовить чек-лист релиза", label: "Запуск", due: "Без срока", assignee: "AM" }, { title: "Проверить события аналитики", label: "Данные", due: "Без срока", assignee: "—" }] },
+        { id: "progress", title: "В работе", tasks: [{ title: "Собрать дашборд", label: "Фронтенд", due: "Сегодня", assignee: "DK" }, { title: "Подключить роли", label: "Бэкенд", due: "Завтра", assignee: "AM" }, { title: "Доработать пустые состояния", label: "UX", due: "Без срока", assignee: "DK" }] },
+        { id: "review", title: "Проверка", tasks: [{ title: "Настройки рабочего пространства", label: "UX", due: "2 окт.", assignee: "AM" }, { title: "Текст приглашения", label: "Контент", due: "Без срока", assignee: "DK" }] },
+        { id: "done", title: "Готово", tasks: [{ title: "Новая главная", label: "Фронтенд", due: "Без срока", assignee: "DK" }, { title: "Авторизация", label: "Бэкенд", due: "Готово", assignee: "AM" }, { title: "Схема базы данных", label: "Бэкенд", due: "Без срока", assignee: "—" }] },
+      ]
+    : boardColumns.map(column => ({
+        id: column.id,
+        title: column.title,
+        tasks: column.tasks.slice(0, 3).map(task => ({
+          title: task.title,
+          label: task.labels[0],
+          due: task.due || "No due date",
+          assignee: task.assignee || "—",
+        })),
+      }));
   const features = [
     { icon: Layers3, title: copy.visualWorkflow, text: copy.visualWorkflowCopy },
     { icon: Target, title: copy.pulseTitle, text: copy.pulseCopy },
