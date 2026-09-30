@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Check, Sparkles } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SiteFooter } from "@/components/site-footer";
@@ -21,7 +21,6 @@ export default function PricingPage() {
         proCopy: "Для небольших команд и активной совместной работы.",
         soon: "Будет доступно после запуска биллинга",
         start: "Начать бесплатно",
-        demo: "Открыть демо",
         features: [
           "Kanban-доски и карточки",
           "Project Pulse",
@@ -47,7 +46,6 @@ export default function PricingPage() {
         proCopy: "For small teams and active collaboration.",
         soon: "Available when billing launches",
         start: "Start free",
-        demo: "Open demo",
         features: [
           "Kanban boards and cards",
           "Project Pulse",
@@ -83,8 +81,8 @@ export default function PricingPage() {
           <PricingCard title={labels.free} copy={labels.freeCopy} features={labels.features} action={labels.start} href="/auth/sign-up" />
           <PricingCard title={labels.pro} copy={labels.proCopy} features={labels.proFeatures} action={labels.soon} href="/auth/sign-up" disabled />
         </div>
-        <div className="mt-7 flex flex-wrap items-center gap-3">
-          <Link href="/demo" className="inline-flex items-center gap-2 rounded-xl border border-white/8 bg-white/[.025] px-4 py-2.5 text-xs text-[var(--muted)] hover:text-white">{labels.demo} <ArrowRight size={14} /></Link>
+        <div className="mt-7 flex items-center">
+          
           <span className="text-xs text-[var(--muted)]">{ru ? "Биллинг появится после стабильного MVP." : "Billing will arrive after the stable MVP."}</span>
         </div>
       </section>
