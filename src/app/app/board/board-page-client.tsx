@@ -63,6 +63,8 @@ export default function BoardPage() {
   const [blockedFilter, setBlockedFilter] = useState(false);
   const [toast, setToast] = useState("");
   const [draggedColumnIndex, setDraggedColumnIndex] = useState<number | null>(null);
+  const [quickAddColumnId, setQuickAddColumnId] = useState<string | null>(null);
+  const [quickAddTitle, setQuickAddTitle] = useState("");
   const [view, setView] = useState<"board" | "table" | "calendar" | "dashboard">("board");
 
   useEffect(() => {
@@ -100,12 +102,16 @@ export default function BoardPage() {
     }),
   }));
 
-  function createTask(columnId: string) {
+  function submitQuickAdd(columnId: string) {
+    const title = quickAddTitle.trim();
+    if (!title) return;
     addTask(currentBoard.id, columnId, {
-      title: language === "ru" ? "Новая задача" : "New task",
+      title,
       labels: [language === "ru" ? "Работа" : "Work"],
       priority: "Medium",
     });
+    setQuickAddTitle("");
+    setQuickAddColumnId(null);
     setToast(language === "ru" ? "Карточка добавлена" : "Card added");
   }
 
@@ -194,9 +200,9 @@ export default function BoardPage() {
           </div>
         </div>
 
-        {view === "table" && <BoardTableView board={currentBoard} language={language} onOpenTask={(columnId, task) => setActiveTask({ columnId, task })} />}
-        {view === "calendar" && <BoardCalendarView board={currentBoard} language={language} onOpenTask={(columnId, task) => setActiveTask({ columnId, task })} />}
-        {view === "dashboard" && <BoardDashboardView board={currentBoard} language={language} />}
+        {view === "table" && <BoardTableView board={currentBoard} columns={filtered} language={language} onOpenTask={(columnId, task) => setActiveTask({ columnId, task })} />}
+        {view === "calendar" && <BoardCalendarView board={currentBoard} columns={filtered} language={language} onOpenTask={(columnId, task) => setActiveTask({ columnId, task })} />}
+        {view === "dashboard" && <BoardDashboardView board={currentBoard} columns={filtered} language={language} />}
         {view === "board" && (
           <div className="scrollbar-thin overflow-x-auto p-4 sm:p-6">
           <div className="mx-auto flex min-w-[1050px] max-w-[1500px] items-start gap-3">
@@ -237,7 +243,17 @@ export default function BoardPage() {
                     <div className="mt-2.5 flex flex-wrap gap-1.5">{task.labels.map(label => <span key={label} className="rounded-md border border-white/8 px-1.5 py-1 text-[9px] text-[var(--muted)]">{label}</span>)}</div>
                     <div className="mt-3 flex items-center justify-between text-[10px] text-[var(--muted)]"><div className="flex gap-2.5">{task.checklist && <span className="inline-flex items-center gap-1"><CheckSquare2 size={12} />{task.checklist}</span>}{task.comments ? <span>◌ {task.comments}</span> : null}</div>{task.due && <span className="inline-flex items-center gap-1"><CalendarClock size={11} />{task.due}</span>}</div>
                   </article>)}
-                  <button type="button" onClick={() => createTask(column.id)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/8 py-2.5 text-xs text-[var(--muted)] hover:bg-white/[.025] hover:text-white"><Plus size={14} />{language === "ru" ? "Добавить карточку" : "Add card"}</button>
+                  {quickAddColumnId === column.id ? (
+  <div className="rounded-xl border border-white/8 bg-white/[.02] p-2">
+    <input autoFocus value={quickAddTitle} onChange={event => setQuickAddTitle(event.target.value)} onKeyDown={event => { if (event.key === "Enter") submitQuickAdd(column.id); if (event.key === "Escape") { setQuickAddColumnId(null); setQuickAddTitle(""); } }} placeholder={language === "ru" ? "Название карточки" : "Card title"} className="w-full bg-transparent px-1 py-1.5 text-sm outline-none" />
+    <div className="mt-2 flex items-center justify-end gap-2">
+      <button type="button" onClick={() => { setQuickAddColumnId(null); setQuickAddTitle(""); }} className="rounded-lg px-2.5 py-1.5 text-[10px] text-[var(--muted)] hover:text-white">{language === "ru" ? "Отмена" : "Cancel"}</button>
+      <button type="button" disabled={!quickAddTitle.trim()} onClick={() => submitQuickAdd(column.id)} className="rounded-lg bg-[var(--accent)] px-2.5 py-1.5 text-[10px] font-semibold text-[#06211c] disabled:opacity-40">{language === "ru" ? "Добавить" : "Add"}</button>
+    </div>
+  </div>
+) : (
+  <button type="button" onClick={() => { setQuickAddColumnId(column.id); setQuickAddTitle(""); }} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/8 py-2.5 text-xs text-[var(--muted)] hover:bg-white/[.025] hover:text-white"><Plus size={14} />{language === "ru" ? "Добавить карточку" : "Add card"}</button>
+)}
                 </div>
               </section>
             ))}
