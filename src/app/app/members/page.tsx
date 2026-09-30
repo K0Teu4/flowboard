@@ -17,7 +17,7 @@ export default function MembersPage() {
 
   function createInviteLink() {
     const token = typeof window !== "undefined" && window.crypto?.randomUUID ? window.crypto.randomUUID() : Math.random().toString(36).slice(2);
-    const url = sitePath("/join/?invite=" + encodeURIComponent(token));
+    const url = sitePath("/auth/sign-up/?invite=" + encodeURIComponent(token));
     navigator.clipboard?.writeText(window.location.origin + url);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
