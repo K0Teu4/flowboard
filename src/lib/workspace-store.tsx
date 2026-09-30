@@ -4,6 +4,8 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { boardColumns, members as initialMembers, type BoardColumn, type Task } from "@/lib/mock-data";
 import { getCurrentUser } from "@/lib/auth-store";
 
+export type BoardTemplate = "blank" | "product" | "content" | "personal";
+
 export type Board = {
   id: string;
   title: string;
@@ -65,7 +67,7 @@ function readState(): WorkspaceState {
 
 const WorkspaceContext = createContext<null | {
   state: WorkspaceState;
-  createBoard: (title: string, description?: string) => Board;
+  createBoard: (title: string, description?: string, template?: BoardTemplate, language?: "ru" | "en") => Board;
   renameBoard: (boardId: string, title: string) => void;
   duplicateBoard: (boardId: string) => Board | null;
   reorderColumns: (boardId: string, fromIndex: number, toIndex: number) => void;
@@ -110,8 +112,34 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const api = useMemo(() => ({
     state,
-    createBoard(title: string, description = "") {
-      const board: Board = { id: crypto.randomUUID(), title, description, columns: ["Бэклог", "В работе", "Проверка", "Готово"].map((t, i) => ({ id: `${crypto.randomUUID()}-${i}`, title: t, tasks: [] })), createdAt: now(), background: "mint", favorite: false };
+    createBoard(title: string, description = "", template: BoardTemplate = "blank", language: "ru" | "en" = "ru") {
+      const names = language === "ru" ? {
+        blank: ["Бэклог", "В работе", "Проверка", "Готово"],
+        product: ["Идеи", "План", "В работе", "Проверка", "Готово"],
+        content: ["Идеи", "Подготовка", "В работе", "На согласовании", "Опубликовано"],
+        personal: ["Входящие", "Сегодня", "В процессе", "Готово"],
+      } : {
+        blank: ["Backlog", "In progress", "Review", "Done"],
+        product: ["Ideas", "Planned", "In progress", "Review", "Done"],
+        content: ["Ideas", "Preparing", "In progress", "Approval", "Published"],
+        personal: ["Inbox", "Today", "In progress", "Done"],
+      };
+      const seedTasks: Record<Exclude<BoardTemplate, "blank">, string[]> = language === "ru" ? {
+        product: ["Сформулировать цель проекта", "Собрать требования", "Подготовить первый релиз"],
+        content: ["Собрать темы", "Подготовить черновик", "Проверить материалы"],
+        personal: ["Разобрать входящие", "Выбрать главное на сегодня"],
+      } : {
+        product: ["Define the project goal", "Collect requirements", "Prepare the first release"],
+        content: ["Collect topics", "Prepare a draft", "Review materials"],
+        personal: ["Process your inbox", "Choose today’s priorities"],
+      };
+      const columnNames = names[template];
+      const columns = columnNames.map((name, index) => ({
+        id: `${crypto.randomUUID()}-${index}`,
+        title: name,
+        tasks: index === 0 && template !== "blank" ? seedTasks[template].map((taskTitle, taskIndex) => ({ id: crypto.randomUUID(), title: taskTitle, priority: taskIndex === 0 ? "High" : "Medium", labels: [template === "product" ? (language === "ru" ? "Продукт" : "Product") : template === "content" ? (language === "ru" ? "Контент" : "Content") : (language === "ru" ? "Личное" : "Personal")] })) : [],
+      }));
+      const board: Board = { id: crypto.randomUUID(), title, description, columns, createdAt: now(), background: "mint", favorite: false };
       setState(prev => withActivity({ ...prev, boards: [...prev.boards, board] }, `Создана доска «${title}»`));
       return board;
     },
