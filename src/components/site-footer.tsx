@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useLanguage } from "@/components/language-provider";
@@ -19,9 +19,6 @@ export function SiteFooter() {
             <Brand />
             <p className="mt-4 max-w-sm text-sm leading-6 text-[var(--muted)]">{copy.footerTagline}</p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <Link href="/demo" className="inline-flex items-center gap-2 rounded-xl border border-white/8 bg-white/[.025] px-3 py-2 text-xs text-[var(--muted)] transition-soft hover:bg-white/[.05] hover:text-[var(--text)]">
-                {copy.footerDemo}<ArrowUpRight size={14} />
-              </Link>
               <LanguageSwitcher />
             </div>
           </div>
@@ -30,7 +27,7 @@ export function SiteFooter() {
             <div className="mt-4 grid gap-3 text-sm text-[var(--muted)]">
               <a href="#features" className="hover:text-[var(--text)]">{productLinks[0]}</a>
               <a href="#pulse" className="hover:text-[var(--text)]">{productLinks[1]}</a>
-              <Link href="/demo" className="hover:text-[var(--text)]">{productLinks[2]}</Link>
+              
             </div>
           </div>
           <div>
