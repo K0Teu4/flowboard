@@ -40,6 +40,7 @@ export default function BoardPage() {
     addChecklistItem,
     toggleChecklistItem,
     deleteChecklistItem,
+    reorderColumns,
   } = useWorkspace();
 
   const board = state.boards.find(item => item.id === boardId);
@@ -60,6 +61,7 @@ export default function BoardPage() {
   const [dueFilter, setDueFilter] = useState(false);
   const [blockedFilter, setBlockedFilter] = useState(false);
   const [toast, setToast] = useState("");
+  const [draggedColumnIndex, setDraggedColumnIndex] = useState<number | null>(null);
   const [view, setView] = useState<"board" | "table" | "calendar" | "dashboard">("board");
 
   useEffect(() => {
@@ -198,14 +200,30 @@ export default function BoardPage() {
           <div className="scrollbar-thin overflow-x-auto p-4 sm:p-6">
           <div className="mx-auto flex min-w-[1050px] max-w-[1500px] items-start gap-3">
             {filtered.map(column => (
-              <section key={column.id} onDragOver={event => event.preventDefault()} onDrop={event => {
-                const data = event.dataTransfer.getData("flowboard-task");
+              <section
+                key={column.id}
+                onDragOver={event => event.preventDefault()}
+                onDrop={event => {
+                  const columnData = event.dataTransfer.getData("flowboard-column");
+                  if (columnData && draggedColumnIndex !== null) {
+                    reorderColumns(currentBoard.id, draggedColumnIndex, currentBoard.columns.findIndex(item => item.id === column.id));
+                    setDraggedColumnIndex(null);
+                    return;
+                  }
+                  const data = event.dataTransfer.getData("flowboard-task");
                 if (!data) return;
                 const [fromId, taskId] = data.split(":");
                 moveTask(currentBoard.id, taskId, fromId, column.id);
               }} className="w-[280px] shrink-0 rounded-2xl border border-white/7 bg-black/10 p-2.5 backdrop-blur-sm">
-                <div className="flex items-center justify-between px-1 pb-2">
-                  <div className="flex items-center gap-2"><div className="text-xs font-semibold">{column.title}</div><span className="grid h-5 min-w-5 place-items-center rounded-md bg-white/5 px-1 text-[10px] text-[var(--muted)]">{column.tasks.length}</span></div>
+                <div
+                  draggable
+                  onDragStart={event => {
+                    event.dataTransfer.setData("flowboard-column", column.id);
+                    setDraggedColumnIndex(currentBoard.columns.findIndex(item => item.id === column.id));
+                  }}
+                  onDragEnd={() => setDraggedColumnIndex(null)}
+                  className="flex cursor-grab items-center justify-between px-1 pb-2 active:cursor-grabbing"
+                >                  <div className="flex items-center gap-2"><div className="text-xs font-semibold">{column.title}</div><span className="grid h-5 min-w-5 place-items-center rounded-md bg-white/5 px-1 text-[10px] text-[var(--muted)]">{column.tasks.length}</span></div>
                   <div className="flex items-center">
                     <button type="button" onClick={() => { setRenameColumnId(column.id); setRenameColumnValue(column.title); }} title={language === "ru" ? "Переименовать" : "Rename"} className="grid h-7 w-7 place-items-center rounded-lg text-[var(--muted)] hover:bg-white/5 hover:text-white"><Edit3 size={13} /></button>
                     <button type="button" onClick={() => setDeleteColumnId(column.id)} title={language === "ru" ? "Удалить" : "Delete"} className="grid h-7 w-7 place-items-center rounded-lg text-[var(--muted)] hover:bg-[rgba(255,113,113,.07)] hover:text-[var(--danger)]"><Trash2 size={13} /></button>
