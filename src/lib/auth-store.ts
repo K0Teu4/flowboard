@@ -9,6 +9,8 @@ export type LocalUser = {
 
 const USER_KEY = "flowboard-user-v1";
 const SESSION_KEY = "flowboard-session-v1";
+const AUTH_EVENT = "flowboard-auth-changed";
+function notifyAuthChange() { window.dispatchEvent(new Event(AUTH_EVENT)); }
 
 async function hashPassword(password: string) {
   const bytes = new TextEncoder().encode(password);
@@ -53,6 +55,7 @@ export async function registerUser(name: string, email: string, password: string
 
   window.localStorage.setItem(USER_KEY, JSON.stringify(user));
   window.localStorage.setItem(SESSION_KEY, user.id);
+  notifyAuthChange();
   return user;
 }
 
@@ -64,6 +67,7 @@ export async function signInUser(email: string, password: string) {
   if (user.email !== email.trim().toLowerCase() || user.passwordHash !== hash) return false;
 
   window.localStorage.setItem(SESSION_KEY, user.id);
+  notifyAuthChange();
   return true;
 }
 
@@ -79,11 +83,13 @@ export function updateCurrentUser(patch: Partial<Pick<LocalUser, "name" | "email
   };
 
   window.localStorage.setItem(USER_KEY, JSON.stringify(next));
+  notifyAuthChange();
   return next;
 }
 
 export function signOutUser() {
   window.localStorage.removeItem(SESSION_KEY);
+  notifyAuthChange();
 }
 
 export function deleteLocalAccount() {
@@ -91,4 +97,5 @@ export function deleteLocalAccount() {
   if (user) window.localStorage.removeItem(`flowboard-workspace-${user.id}`);
   window.localStorage.removeItem(USER_KEY);
   window.localStorage.removeItem(SESSION_KEY);
+  notifyAuthChange();
 }
