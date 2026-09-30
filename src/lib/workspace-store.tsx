@@ -68,6 +68,7 @@ const WorkspaceContext = createContext<null | {
   createBoard: (title: string, description?: string) => Board;
   renameBoard: (boardId: string, title: string) => void;
   duplicateBoard: (boardId: string) => Board | null;
+  reorderColumns: (boardId: string, fromIndex: number, toIndex: number) => void;
   toggleFavorite: (boardId: string) => void;
   setBackground: (boardId: string, background: string) => void;
   deleteBoard: (boardId: string) => void;
@@ -113,22 +114,35 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setState(prev => withActivity({ ...prev, boards: prev.boards.map(b => b.id === boardId ? { ...b, title: clean } : b) }, `Переименована доска в «${clean}»`));
     },
     duplicateBoard(boardId: string) {
-      let created: Board | null = null;
-      setState(prev => {
-        const original = prev.boards.find(b => b.id === boardId);
-        if (!original) return prev;
-        const clone: Board = {
-          ...structuredClone(original),
+      const original = state.boards.find(b => b.id === boardId);
+      if (!original) return null;
+      const clone: Board = {
+        ...structuredClone(original),
+        id: crypto.randomUUID(),
+        title: original.title + " — копия",
+        createdAt: now(),
+        favorite: false,
+        columns: original.columns.map(column => ({
+          ...column,
           id: crypto.randomUUID(),
-          title: `${original.title} — копия`,
-          createdAt: now(),
-          favorite: false,
-          columns: original.columns.map(column => ({ ...column, id: crypto.randomUUID(), tasks: column.tasks.map(task => ({ ...task, id: crypto.randomUUID() })) })),
-        };
-        created = clone;
-        return withActivity({ ...prev, boards: [...prev.boards, clone] }, `Создана копия доски «${clone.title}»`);
-      });
-      return created;
+          tasks: column.tasks.map(task => ({ ...task, id: crypto.randomUUID() })),
+        })),
+      };
+      setState(prev => withActivity({ ...prev, boards: [...prev.boards, clone] }, "Создана копия доски «" + clone.title + "»"));
+      return clone;
+    },
+    reorderColumns(boardId: string, fromIndex: number, toIndex: number) {
+      setState(prev => withActivity({
+        ...prev,
+        boards: prev.boards.map(board => {
+          if (board.id !== boardId || fromIndex === toIndex) return board;
+          const columns = [...board.columns];
+          const [moving] = columns.splice(fromIndex, 1);
+          if (!moving) return board;
+          columns.splice(Math.max(0, Math.min(toIndex, columns.length)), 0, moving);
+          return { ...board, columns };
+        }),
+      }, "Изменён порядок списков"));
     },
     toggleFavorite(boardId: string) {
       setState(prev => ({ ...prev, boards: prev.boards.map(b => b.id === boardId ? { ...b, favorite: !b.favorite } : b) }));
