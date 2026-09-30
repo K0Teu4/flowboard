@@ -27,6 +27,7 @@ export function SiteFooter() {
             <div className="mt-4 grid gap-3 text-sm text-[var(--muted)]">
               <a href="#features" className="hover:text-[var(--text)]">{productLinks[0]}</a>
               <a href="#pulse" className="hover:text-[var(--text)]">{productLinks[1]}</a>
+              <Link href="/pricing" className="hover:text-[var(--text)]">{productLinks[2]}</Link>
               
             </div>
           </div>
