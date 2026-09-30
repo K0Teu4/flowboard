@@ -17,9 +17,9 @@
 
 * { box-sizing: border-box; }
 html { min-height: 100%; background: var(--bg); }
-body { margin: 0; min-height: 100%; color: var(--text); font-family: Arial, Helvetica, sans-serif; background: var(--bg); position: relative; overflow-x: hidden; }
-body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -2; background: radial-gradient(circle at 12% 6%, rgba(45,212,191,.15), transparent 25rem), radial-gradient(circle at 88% 10%, rgba(90,112,255,.13), transparent 31rem), radial-gradient(circle at 52% 72%, rgba(255,255,255,.035), transparent 36rem), linear-gradient(180deg, #0b1011 0%, #090e0f 45%, #070b0d 100%); }
-body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1; opacity: .42; background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size: 48px 48px; mask-image: linear-gradient(to bottom, rgba(0,0,0,.85), transparent 78%); }
+body { margin: 0; min-height: 100%; color: var(--text); font-family: "Inter", "Segoe UI Variable", "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); position: relative; overflow-x: hidden; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -2; background: radial-gradient(ellipse 55% 38% at 8% 2%, rgba(45,212,191,.14), transparent 65%), radial-gradient(ellipse 48% 36% at 94% 5%, rgba(85,104,255,.13), transparent 66%), radial-gradient(ellipse 60% 48% at 52% 92%, rgba(32,180,165,.06), transparent 70%), linear-gradient(180deg, #0b1011 0%, #0a0f10 32%, #080d0f 68%, #060a0c 100%); }
+body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1; opacity: .34; background-image: linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px); background-size: 56px 56px; mask-image: radial-gradient(circle at 50% 14%, black 0%, rgba(0,0,0,.9) 42%, transparent 82%); }
 button, input { font: inherit; }
 button { cursor: pointer; }
 ::selection { background: rgba(45,212,191,.28); }
@@ -29,7 +29,7 @@ button { cursor: pointer; }
 .card { background: var(--panel-2); border: 1px solid var(--border); }
 .card:hover { border-color: rgba(45,212,191,.34); transform: translateY(-1px); }
 .transition-soft { transition: 180ms ease; }
-.gradient-text { background: linear-gradient(120deg, #fff 15%, #b7fff5 64%, #2dd4bf 95%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.gradient-text { background: linear-gradient(118deg, #ffffff 4%, #d6fffa 46%, #65e9d5 76%, #2dd4bf 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .grid-fade { background-image: linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px); background-size: 40px 40px; mask-image: linear-gradient(to bottom, rgba(0,0,0,.85), transparent 90%); opacity: .5; }
 .scrollbar-thin::-webkit-scrollbar { height: 7px; width: 7px; }
 .scrollbar-thin::-webkit-scrollbar-thumb { background: #2a3535; border-radius: 999px; }
@@ -51,3 +51,6 @@ select option { background: #111819; color: var(--text); }
 .landing-orb { position: absolute; width: 32rem; height: 32rem; border-radius: 999px; filter: blur(72px); pointer-events: none; opacity: .32; }
 .landing-orb-a { top: 3rem; left: -16rem; background: rgba(45,212,191,.12); }
 .landing-orb-b { top: 7rem; right: -18rem; background: rgba(99,102,241,.10); }
+
+.landing-shell { isolation: isolate; }
+.landing-shell::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: -1; background: linear-gradient(180deg, rgba(255,255,255,.018), transparent 18rem), radial-gradient(ellipse 42% 20% at 50% 34%, rgba(45,212,191,.035), transparent 72%); }
