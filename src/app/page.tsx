@@ -86,9 +86,9 @@ export default function Home() {
                       <div key={column.id} className="rounded-2xl border border-white/6 bg-white/[.02] p-2">
                         <div className="flex items-center justify-between px-1 pb-2"><div className="text-[11px] font-medium">{column.title}</div><div className="text-[9px] text-[var(--muted)]">{column.tasks.length}</div></div>
                         <div className="space-y-1.5">
-                          {column.tasks.slice(0, 3).map(task => (
-                            <div key={task.id} className="card rounded-xl p-2.5">
-                              <div className="flex items-center justify-between gap-2"><span className="text-[9px] text-[var(--muted)]">{language === "ru" ? task.label : task.labels[0]}</span><span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" /></div>
+                          {column.tasks.slice(0, 3).map((task, taskIndex) => (
+                            <div key={column.id + "-" + taskIndex} className="card rounded-xl p-2.5">
+                              <div className="flex items-center justify-between gap-2"><span className="text-[9px] text-[var(--muted)]">{task.label}</span><span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" /></div>
                               <div className="mt-1.5 text-[12px] font-medium leading-4">{task.title}</div>
                               <div className="mt-2.5 flex items-center justify-between text-[9px] text-[var(--muted)]"><span>{task.due ? (language === "ru" ? task.due : task.due) : language === "ru" ? "Без срока" : "No due date"}</span><span>{task.assignee || "—"}</span></div>
                             </div>
