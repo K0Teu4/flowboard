@@ -7,13 +7,14 @@ import type { Board } from "@/lib/workspace-store";
 
 type ViewProps = {
   board: Board;
+  columns: Board["columns"];
   language: "ru" | "en";
   onOpenTask: (columnId: string, task: Task) => void;
 };
 
-export function BoardTableView({ board, language, onOpenTask }: ViewProps) {
+export function BoardTableView({ board, columns, language, onOpenTask }: ViewProps) {
   const [sort, setSort] = useState<"title" | "priority" | "due">("due");
-  const rows = useMemo(() => board.columns.flatMap(column => column.tasks.map(task => ({ task, column }))), [board]);
+  const rows = useMemo(() => columns.flatMap(column => column.tasks.map(task => ({ task, column }))), [board]);
   const priorityWeight: Record<Task["priority"], number> = { High: 0, Medium: 1, Low: 2 };
 
   const sorted = [...rows].sort((a, b) => {
@@ -75,7 +76,7 @@ export function BoardTableView({ board, language, onOpenTask }: ViewProps) {
   );
 }
 
-export function BoardCalendarView({ board, language, onOpenTask }: ViewProps) {
+export function BoardCalendarView({ board, columns, language, onOpenTask }: ViewProps) {
   const [cursor, setCursor] = useState(() => new Date());
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
@@ -84,7 +85,7 @@ export function BoardCalendarView({ board, language, onOpenTask }: ViewProps) {
   const mondayOffset = (firstDay + 6) % 7;
   const days = new Date(year, month + 1, 0).getDate();
 
-  const tasks = board.columns.flatMap(column => column.tasks.map(task => ({ task, column })));
+  const tasks = columns.flatMap(column => column.tasks.map(task => ({ task, column })));
   const byDay = new Map<number, { task: Task; column: Board["columns"][number] }[]>();
 
   tasks.forEach(({ task, column }) => {
@@ -138,8 +139,8 @@ export function BoardCalendarView({ board, language, onOpenTask }: ViewProps) {
   );
 }
 
-export function BoardDashboardView({ board, language }: { board: Board; language: "ru" | "en" }) {
-  const all = board.columns.flatMap(column => column.tasks);
+export function BoardDashboardView({ board, columns, language }: { board: Board; columns: Board["columns"]; language: "ru" | "en" }) {
+  const all = columns.flatMap(column => column.tasks);
   const byPriority = {
     High: all.filter(task => task.priority === "High").length,
     Medium: all.filter(task => task.priority === "Medium").length,
@@ -169,7 +170,7 @@ export function BoardDashboardView({ board, language }: { board: Board; language
         <section className="rounded-3xl border border-white/8 bg-black/10 p-5">
           <div className="flex items-center gap-2"><BarChart3 size={17} className="text-[var(--accent)]" /><h3 className="font-medium">{language === "ru" ? "По спискам" : "By list"}</h3></div>
           <div className="mt-4 grid gap-3">
-            {board.columns.map(column => <div key={column.id}>
+            {columns.map(column => <div key={column.id}>
               <div className="flex items-center justify-between text-xs"><span>{column.title}</span><span className="text-[var(--muted)]">{column.tasks.length}</span></div>
               <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/6"><div className="h-full rounded-full bg-[var(--accent)]" style={{ width: (all.length ? (column.tasks.length / all.length) * 100 : 0) + "%" }} /></div>
             </div>)}
