@@ -94,7 +94,7 @@ export default function SignUpPage() {
                 <input value={password} onChange={event => setPassword(event.target.value)} onFocus={() => setPasswordFocused(true)} onBlur={() => setPasswordFocused(false)} className="focus-ring h-11 w-full rounded-xl border border-white/9 bg-white/[.025] px-3 pr-11 outline-none focus:border-[var(--accent)]" type={showPassword ? "text" : "password"} autoComplete="new-password" placeholder="••••••••" />
                 <button type="button" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? (language === "ru" ? "Скрыть пароль" : "Hide password") : (language === "ru" ? "Показать пароль" : "Show password")} className="absolute right-1 top-1 grid h-9 w-9 place-items-center rounded-lg text-[var(--muted)] hover:bg-white/5 hover:text-white">{showPassword ? <EyeOff size={15} /> : <Eye size={15} />}</button>
               </div>
-              {(passwordFocused || password.length > 0) && (
+              {passwordFocused && (
                 <div className="rounded-xl border border-white/8 bg-white/[.02] p-3 text-[11px]">
                   <div className="mb-2 text-[var(--muted)]">{language === "ru" ? "Пароль должен содержать:" : "Password requirements:"}</div>
                   <div className="grid gap-1.5">{rule(passwordRules.length, language === "ru" ? "не меньше 8 символов" : "at least 8 characters")}{rule(passwordRules.letter, language === "ru" ? "хотя бы одну букву" : "at least one letter")}{rule(passwordRules.number, language === "ru" ? "хотя бы одну цифру" : "at least one number")}</div>
